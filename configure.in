@@ -1,0 +1,179 @@
+# $Id: configure.in 190 2010-09-30 18:06:27Z peterb $
+# $Date: 2010-09-30 20:06:27 +0200 (Thu, 30 Sep 2010) $
+
+AC_PREREQ(2.59)
+AC_INIT(README.shotdetect)
+AM_INIT_AUTOMAKE([shotdetect], 1.0.86)
+AM_CONFIG_HEADER(config.h)
+
+AC_PROG_INSTALL
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+
+
+AC_ARG_ENABLE(static-wx,
+[  --enable-static-wx            Compile with static wx libraries.],
+        [case "${enableval}" in
+          yes) static_wx=true ;;
+          no)  static_wx=false ;;
+          *) AC_MSG_ERROR(bad value ${enableval} for --enable-static-wx) ;;
+         esac],
+        [static_wx=false])
+
+AM_OPTIONS_WXCONFIG
+reqwx=2.6.0
+AM_PATH_WXCONFIG($reqwx, wxWin=1)
+if test "$wxWin" != 1; then
+   AC_MSG_ERROR([
+          wxWidgets must be installed on your system.
+
+          Please check that wx-config is in path, the directory
+          where wxWidgets libraries are installed (returned by
+          'wx-config --libs' or 'wx-config --static --libs' command)
+          is in LD_LIBRARY_PATH or equivalent variable and
+          wxWidgets version is $reqwx or above.
+          ])
+else
+   if test x"${static_wx}" = x"true" ; then
+          WX_LIBS="$WX_LIBS_STATIC"
+   fi
+   dnl Quick hack until wx-config does it
+   AC_LANG_SAVE
+   AC_LANG_CPLUSPLUS
+   AC_LANG_RESTORE
+fi
+
+
+
+
+dnl Check for libxml2
+
+AC_DEFUN([VERSION_TO_NUMBER],
+[`$1 | sed -e 's/libxml //' | awk 'BEGIN { FS = "."; } { printf "%d", ([$]1 * 1000 + [$]2) * 1000 + [$]3;}'`])
+
+
+LIBXML_CONFIG_PREFIX=""
+
+AC_ARG_WITH(libxml-prefix,
+        [  --with-libxml-prefix=[PFX]           Specify location of libxml config],
+        LIBXML_CONFIG_PREFIX=$withval
+)
+
+AC_ARG_WITH(libxml-include-prefix,
+        [  --with-libxml-include-prefix=[PFX]   Specify location of libxml headers],
+        LIBXML_CFLAGS="-I$withval"
+)
+
+AC_ARG_WITH(libxml-libs-prefix,
+        [  --with-libxml-libs-prefix=[PFX]      Specify location of libxml libs],
+        LIBXML_LIBS="-L$withval"
+)
+
+AC_SUBST(LIBXML_SRC)
+
+
+
+
+
+
+
+AC_SUBST(LIBXML_REQUIRED_VERSION)
+AC_MSG_CHECKING(for libxml libraries >= $LIBXML_REQUIRED_VERSION)
+if test "x$LIBXML_CONFIG_PREFIX" != "x"
+then
+        XML_CONFIG=${LIBXML_CONFIG_PREFIX}/bin/xml2-config
+else
+        XML_CONFIG=xml2-config
+fi
+
+
+
+if ${XML_CONFIG} --libs print > /dev/null 2>&1
+then
+        XMLVERS=`$XML_CONFIG --version`
+        if test VERSION_TO_NUMBER(echo $XMLVERS) -ge VERSION_TO_NUMBER(echo $LIBXML_REQUIRED_VERSION)
+        then
+                LIBXML_LIBS="$LIBXML_LIBS `$XML_CONFIG --libs`"
+                LIBXML_CFLAGS="$LIBXML_CFLAGS `$XML_CONFIG --cflags`"
+                AC_MSG_RESULT($XMLVERS found)
+        else
+                AC_MSG_ERROR(Version $XMLVERS found. You need at least libxml2 $LIBXML_REQUIRED_VERSION for this version of libxslt)
+        fi
+else
+        AC_MSG_ERROR([Could not find libxml2 anywhere, check ftp://xmlsoft.org/.])
+fi
+
+
+for i in /usr/local /usr; do
+   if test -x "$i/bin/xslt-config"; then
+    XSLT_CONFIG=$i/bin/xslt-config
+     break
+   fi
+done
+
+if test -z "$XSLT_CONFIG"; then
+   AC_MSG_ERROR([xslt-config not found. Please reinstall the libxslt >= 1.1.0 distribution])
+fi
+# Checks for libraries.
+# FIXME: Replace `main' with a function in `-lavcodec':
+AC_CHECK_LIB(stdc++, main,,AC_MSG_ERROR(shotdetect requires libstdc++))
+AC_CHECK_LIB([avcodec], [main],,  AC_MSG_ERROR([Please install libavcodec]))
+# FIXME: Replace `main' with a function in `-lavcore':
+AC_CHECK_LIB([avcore], [main],,  AC_MSG_ERROR([Please install libavcore]))
+# FIXME: Replace `main' with a function in `-lavformat':
+AC_CHECK_LIB([avformat], [main],,  AC_MSG_ERROR([Please install libavformat]))
+# FIXME: Replace `main' with a function in `-lavutil':
+AC_CHECK_LIB([avutil], [main],,  AC_MSG_ERROR([Please install libavutil]))
+# FIXME: Replace `main' with a function in `-lswscale':
+AC_CHECK_LIB([swscale], [main],,  AC_MSG_ERROR([Please install libswscale]))
+# FIXME: Replace `main' with a function in `-lgd':
+AC_CHECK_LIB([gd], [main],,  AC_MSG_ERROR([Please install libgd2 !]))
+# -------------------- FFmpeg optional features:
+# FIXME: Replace `main' with a function in `-lpthread':
+AC_CHECK_LIB([pthread], [main],,  AC_MSG_ERROR([Please install libpthread]))
+# -------------------- FFmpeg libav optional codecs:
+# FIXME: Replace `main' with a function in `-lxvidcore':
+AC_CHECK_LIB([xvidcore], [main],,  AC_MSG_WARN([Could not find: libxvidcore (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lmp3lame':
+AC_CHECK_LIB([mp3lame], [main],,  AC_MSG_WARN([Could not find: liblame (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lfaac':
+AC_CHECK_LIB([faac], [main],,  AC_MSG_WARN([Could not find: libfaac (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lvorbis':
+AC_CHECK_LIB([vorbis], [main],,  AC_MSG_WARN([Could not find: libvorbis (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lvorbisenc':
+AC_CHECK_LIB([vorbisenc], [main],,  AC_MSG_WARN([Could not find: libvorbisenc (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lschroedinger':
+AC_CHECK_LIB([schroedinger-1.0], [main],,  AC_MSG_WARN([Could not find: libschroedinger (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-ldirac_encoder':
+AC_CHECK_LIB([dirac_encoder], [main],,  AC_MSG_WARN([Could not find: libdirac_encoder (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-ldirac_decoder':
+AC_CHECK_LIB([dirac_decoder], [main],,  AC_MSG_WARN([Could not find: libdirac_decoder (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lfaad':
+AC_CHECK_LIB([faad], [main],,  AC_MSG_WARN([Could not find: libfaad (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lfaac':
+AC_CHECK_LIB([faac], [main],,  AC_MSG_WARN([Could not find: libfaac (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lopenjpeg':
+AC_CHECK_LIB([openjpeg], [main],,  AC_MSG_WARN([Could not find: libopenjpeg (optional libav codec dependency)]))
+# FIXME: Replace `main' with a function in `-lx264':
+AC_CHECK_LIB([x264], [main],,  AC_MSG_WARN([Could not find: libx264 (optional libav codec dependency)]))
+# --------------------------------------------------------------------------
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/time.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_TYPE_UINT8_T
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STAT
+AC_CHECK_FUNCS([gettimeofday mkdir strcspn strspn])
+
+AC_OUTPUT(Makefile src/Makefile)

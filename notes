@@ -1,0 +1,3 @@
+1 Faire des makefiles locaux à chacun des sous repertoires
+2 faire un configure.in global avec les chemins des sous rep
+3. checker toutes les libs nécessaires avec la doc canonique automake

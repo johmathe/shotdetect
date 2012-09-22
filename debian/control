@@ -1,0 +1,19 @@
+Source: shotdetect
+Section: graphics
+Priority: extra
+Maintainer: Johan MATHE <johan.mathe@tremplin-utc.net>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+
+Package: shotdetect
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: optical video scene detection software
+ Shotdetect is an optical video scene detection software. It generates
+ thumbs and an XML output file. Shotdetect is writtent in C++ and based
+ on the ffmpeg libraries, so able to read a lot of different file formats.
+ .
+ Shotdetect comes with a command line interface only now to allow batch 
+ processing on files.
+ .           
+ You can find more information about shotdetect at http://shotdetect.nonutc.fr
