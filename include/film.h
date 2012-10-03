@@ -26,7 +26,9 @@ extern "C" {
 #ifdef BDD
 #include <postgresql/libpq-fe.h>
 #endif
+#ifdef WXWIDGETS
 #include <wx/wx.h>
+#endif
 
 #include "image.h"
 #include "shot.h"
@@ -198,7 +200,9 @@ class film
 
         /* Constructor */
         film ();
+		#ifdef WXWIDGETS
         film (DialogShotDetect_c *);
+		#endif
 
         /* Accessors */
         inline void set_first_img(bool val) {this->first_img_set = val; };

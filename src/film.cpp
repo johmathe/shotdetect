@@ -21,9 +21,11 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#ifdef WXWIDGETS
 #include "DialogShotDetect_c.h"
 #include <wx/thread.h>
 #include <wx/msgdlg.h>
+#endif
 
 #define DEBUG
 
@@ -36,6 +38,7 @@ void film::do_stats (int frame_number)
     struct timezone timezone;
     gettimeofday (&time_now, &timezone);
 
+	#ifdef WXWIDGETS
     int time_elapsed = time_now.tv_sec - dialogParent->time_start.tv_sec;
 
     if (dialogParent->get_time_elapsed () != time_elapsed)
@@ -46,6 +49,7 @@ void film::do_stats (int frame_number)
     }
 
     percent = ((frame_number) / (fps * (duration.mstotal / 100000)));
+
     if (int (percent) != int (perctmp) || !show_started)
     {
         double val_global = percent / idfilm + double (progress_state_prev);
@@ -54,6 +58,7 @@ void film::do_stats (int frame_number)
         dialogParent->set_progress_global (val_global);
         wxMutexGuiLeave ();
     }
+	#endif
     show_started = 1;
 }
 
@@ -67,7 +72,7 @@ void film::create_main_dir ()
     buf = (struct stat *) malloc (sizeof (struct stat));
     if (stat (str.str ().c_str (), buf) == -1)
     {
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__ ) || defined(__MINGW32__)
         mkdir (str.str ().c_str ());
 #else
         mkdir (str.str ().c_str (), 0777);
@@ -150,14 +155,22 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
         /*
          * Create images if necessary 
          */
+		#ifdef WXWIDGETS
         if (this->first_img_set || (display && dialogParent->checkbox_1->GetValue ()))
+		#else
+		if (this->first_img_set)	
+		#endif
         {
             image *im_begin = new image (this, width, height, s.myid, BEGIN, this->thumb_set, this->shot_set);
 	        im_begin->SaveFrame (pFrame, frame_number);
             s.img_begin = im_begin;
         }
 
+		#ifdef WXWIDGETS
         if (this->last_img_set || (display && dialogParent->checkbox_2->GetValue ()))
+		#else
+		if (this->last_img_set)	
+		#endif
         {
             image *im_end = new image (this, width, height, s.myid - 1, END, this->thumb_set, this->shot_set);
 	        im_end->SaveFrame (pFramePrev, frame_number);
@@ -169,6 +182,7 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
         /*
          * updating display 
          */
+		#ifdef WXWIDGETS
         wxString nbshots;
         nbshots << shots.size ();
         if (display)
@@ -177,6 +191,7 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
             dialogParent->list_films->SetItem (0, 1, nbshots);
             wxMutexGuiLeave ();
         }
+		#endif
     }
 }
 
@@ -228,7 +243,7 @@ void film::update_metadata ()
 
 void film::shotlog (string message)
 {
-
+	#ifdef WXWIDGETS
     if (display)
     {
         wxString mess;
@@ -239,6 +254,7 @@ void film::shotlog (string message)
         wxMutexGuiLeave ();
     }
     else
+	#endif
     {
         cerr << "Shot log :: " << message << endl;
     }
@@ -377,7 +393,7 @@ int film::process ()
 
     }
 
-
+	#ifdef WXWIDGETS
     wxString fduration;
     fduration << duration.hours << wxT (":") << duration.mins << wxT (":") << duration.secs << wxT (":") << duration.us;
 
@@ -387,7 +403,7 @@ int film::process ()
         dialogParent->list_films->SetItem (0, 2, fduration);
         wxMutexGuiLeave ();
     }
-
+	#endif
 
     checknumber = (samplerate * samplearg) / 1000;
 
@@ -447,8 +463,12 @@ int film::process ()
                      */
                     image *begin_i = new image (this, width, height, s.myid, BEGIN, this->thumb_set, this->shot_set);
                     begin_i->create_img_dir ();
-
+					
+					#ifdef WXWIDGETS
                     if (this->first_img_set || (display && dialogParent->checkbox_1->GetValue ()))
+					#else
+					if (this->first_img_set)
+					#endif
                     {
 		                begin_i->SaveFrame (pFrameRGB, frame_number);
                         shots.back ().img_begin = begin_i;
@@ -476,7 +496,11 @@ int film::process ()
         shots.back ().fduration = pFrame->coded_picture_number - shots.back ().fbegin;
         shots.back ().msduration = int (((shots.back ().fduration) * 1000) / fps);
         duration.mstotal = int (shots.back ().msduration + shots.back ().msbegin);
+		#ifdef WXWIDGETS
         if (this->last_img_set || (display && dialogParent->checkbox_2->GetValue ()))
+		#else
+		if (this->last_img_set)
+		#endif
         {
             image *end_i = new image (this, width, height, shots.back ().myid, END,
                     this->thumb_set, this->shot_set);
@@ -624,7 +648,7 @@ void film::process_audio ()
     }
 }
 
-
+#ifdef WXWIDGETS
 film::film (DialogShotDetect_c * d)
 {
     // Initialization of values for the GUI
@@ -647,7 +671,7 @@ film::film (DialogShotDetect_c * d)
     nchannel = 1;
     audio_buf = NULL;
 }
-
+#endif
 
 film::film()
 {
