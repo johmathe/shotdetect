@@ -39,7 +39,7 @@ int image::create_img_dir ()
     {
         if (stat (strthumb.str ().c_str (), buf) == -1)
         {
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__ ) || defined(__MINGW32__)
             f->shotlog("Windows version : creating thumbs directory");
             mkdir (strthumb.str ().c_str ());
 #else
@@ -53,7 +53,7 @@ int image::create_img_dir ()
     {
         if (stat (strshot.str ().c_str (), buf) == -1)
         {
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__ ) || defined(__MINGW32__)
             f->shotlog("Windows version : creating shots directory");
             mkdir (strshot.str ().c_str ());
 #else
