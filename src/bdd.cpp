@@ -56,7 +56,7 @@ bdd::bdd (const string host, const string login, const string pwd, int port, con
   f->id_plan = atoi (PQgetvalue (result, 0, 0));
   query = "SELECT * FROM auteur WHERE (prenom='";	// %s') AND
   // (nom='%s')",
-  // f->auteur.prenom, film->auteur.nom);
+  // f->author.prenom, film->auteur.nom);
   result = PQexec (conn, query.c_str ());
 
   /*
@@ -66,8 +66,8 @@ bdd::bdd (const string host, const string login, const string pwd, int port, con
   if (PQntuples (result))
     {
       fprintf (stderr, "L'auteur existe dans la base de données : récupération de l'id\n");
-      f->auteur.id = atoi (PQgetvalue (result, 0, 0));
-      fprintf (stderr, "ID auteur \t\t: %d\n", f->auteur.id);
+      f->author.id = atoi (PQgetvalue (result, 0, 0));
+      fprintf (stderr, "ID auteur \t\t: %d\n", f->author.id);
 
     }
   else
@@ -78,10 +78,10 @@ bdd::bdd (const string host, const string login, const string pwd, int port, con
       // MAX(id) 
       // FROM
       // auteur;",
-      // f->auteur.prenom, f->auteur.nom);
+      // f->author.prenom, f->author.nom);
       result = PQexec (conn, query.c_str ());
-      f->auteur.id = atoi (PQgetvalue (result, 0, 0));
-      fprintf (stderr, "ID auteur \t\t: %d\n", f->auteur.id);
+      f->author.id = atoi (PQgetvalue (result, 0, 0));
+      fprintf (stderr, "ID auteur \t\t: %d\n", f->author.id);
     }
 
 
@@ -89,7 +89,7 @@ bdd::bdd (const string host, const string login, const string pwd, int port, con
    * relations nn 
    */
   query = "INSERT INTO nn_auteur_film (id_local,id_foreign,priority) VALUES ";	// (%d,%d,0);",
-  // f->auteur.id, f->id);
+  // f->author.id, f->id);
   result = PQexec (conn, query.c_str ());
 
   /*
@@ -117,7 +117,7 @@ bdd::updatebdd ()
 
   for (il = f->shots.begin (); il != f->shots.end (); il++)
     {
-      sec = (int) (il->msstart / 1000);
+      sec = (int) (il->msbegin / 1000);
       min = sec / 60;
       hr = min / 60;
       min %= 60;
