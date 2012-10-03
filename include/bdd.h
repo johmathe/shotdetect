@@ -7,7 +7,7 @@
 #ifndef __SHOTBDD_H__
 #define __SHOTBDD_H__
 
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
