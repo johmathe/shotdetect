@@ -247,7 +247,7 @@ graph::draw_canvas (gdImagePtr im, string title)
 
         // Write video position as grid label:
         //printf("%d:%02d:%02d.%02d\n", hour, minute, second, frame);
-        sprintf(time, "%d:%02d:%02d.%02d", hour, minute, second, frame);
+        /*sprintf(time, "%d:%02d:%02d.%02d", hour, minute, second, frame);
 
         gdImageString (im, 
           gdFontGetLarge(),
@@ -255,9 +255,9 @@ graph::draw_canvas (gdImagePtr im, string title)
           xaxis_offset + 8,
           (unsigned char *) time,
           grid_color
-        );
+        );*/
       }
-
+	  //if (!(i % grid_size)) //CF
 	  gdImageLine (im, x, xaxis_offset - 1, x, xaxis_offset + tick_length, grid_color);
     }
   }
