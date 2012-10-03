@@ -18,7 +18,7 @@
 #include "DialogShotDetect_c.h"
 #include "wxProcessVideoThread.h"
 #include "DialogHelp.h"
-#include "icone_cgp.xpm"
+//#include "icone_cgp.xpm"
 
 
 class HelpFrame;
@@ -33,7 +33,7 @@ DialogShotDetect_c::OnQuit (wxCloseEvent &)
 DialogShotDetect_c::DialogShotDetect_c (wxWindow * parent, int id, const wxString & title, const wxPoint & pos, const wxSize & size, long style):
 wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
-  SetIcon (wxICON (icone_cgp));
+  //SetIcon (wxICON (icone_cgp));
 
   list_films = new wxListCtrl (this, -1, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxSUNKEN_BORDER);
   bouton_ajouer = new wxButton (this, ID_AJOUTER, wxT ("Add"));
@@ -132,9 +132,9 @@ DialogShotDetect_c::AjouterFichier (wxCommandEvent & event)
 {
   wxFileDialog dialog (this, _T ("Open file for an analyse"), wxEmptyString, wxEmptyString,
 #ifdef __WXMOTIF__
-		       _T ("Media files (*.avi;*.flv;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mpg;*.mov;*.mp3;*.wav")
+		       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #else
-		       _T ("Media files (*.avi;*.flv;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mpg;*.mov;*.mp3;*.wav")
+		       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #endif
     );
   dialog.SetDirectory (wxGetHomeDir ());
