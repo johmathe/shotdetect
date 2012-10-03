@@ -309,11 +309,11 @@ int film::process ()
     {
         switch (pFormatCtx->streams[j]->codec->codec_type)
         {
-            case CODEC_TYPE_VIDEO:
+            case AVMEDIA_TYPE_VIDEO:
                 videoStream = j;
                 break;
 
-            case CODEC_TYPE_AUDIO:
+            case AVMEDIA_TYPE_AUDIO:
                 audioStream = j;
                 break;
 
