@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: image.h 194 2010-09-30 23:35:11Z peterb $
  * $Date: 2010-10-01 01:35:11 +0200 (Fri, 01 Oct 2010) $
  */
@@ -10,7 +10,7 @@
 #ifndef INT64_C
 #define INT64_C(c) (c ## LL)
 #define UINT64_C(c) (c ## ULL)
-#endif 
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

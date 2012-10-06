@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: conf.h 100 2007-01-29 11:10:37Z johmathe $
  * $Date: 2007-01-29 12:10:37 +0100 (Mon, 29 Jan 2007) $
  */
@@ -13,7 +13,7 @@ class conf
 {
 
 public:
-/* Config struct */
+  /* Config struct */
   string portc;
   string host;
   string login;
@@ -27,8 +27,8 @@ public:
   int port;
 
 
-    conf ();
-   ~conf ();
+  conf ();
+  ~conf ();
 
 };
 

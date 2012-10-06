@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: graph.h 191 2010-09-30 18:52:37Z peterb $
  * $Date: 2010-09-30 20:52:37 +0200 (Thu, 30 Sep 2010) $
  */
@@ -22,8 +22,7 @@
 
 using namespace std;
 
-struct dataframe
-{
+struct dataframe {
   int global;
   int red;
   int green;
@@ -40,7 +39,7 @@ class graph
 
 private:
 
-/* Private properties for class-internal functions */
+  /* Private properties for class-internal functions */
   gdImagePtr im_colors;
   gdImagePtr im_qte_mvmt;
   gdImagePtr im_hsv;
@@ -82,7 +81,7 @@ private:
   FILE *fd_xml;
 
   film *f;
-    vector < dataframe > data;
+  vector < dataframe > data;
   /* Graph colors */
   int line_color;
   int background_color;
@@ -99,8 +98,8 @@ private:
   float MAX(float a, float b, float c);
   float MIN(float a, float b, float c);
 
- 
- 
+
+
 public:
   void save ();
   void draw_all_canvas ();
@@ -112,21 +111,19 @@ public:
   void set_color (int, int, int);
   void write_xml(string filename);
   void set_title (string);
-   ~graph ();
-    graph (int x, int y, string filename,int threshold, film *farg);
-    graph (int threshold, film *farg);
-  inline void push_data (int val)
-  {
+  ~graph ();
+  graph (int x, int y, string filename,int threshold, film *farg);
+  graph (int threshold, film *farg);
+  inline void push_data (int val) {
     dataframe frame;
-      frame.global = val;
-      frame.red = 0;
-      frame.blue = 0;
-      frame.green = 0;
-      data.push_back (frame);
+    frame.global = val;
+    frame.red = 0;
+    frame.blue = 0;
+    frame.green = 0;
+    data.push_back (frame);
   }
 
-  inline void push_data (int val, int red, int green, int blue)
-  {
+  inline void push_data (int val, int red, int green, int blue) {
     dataframe frame;
     frame.global = val;
     frame.red = red;

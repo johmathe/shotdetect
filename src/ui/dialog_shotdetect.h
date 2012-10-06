@@ -20,8 +20,7 @@
 #include <iterator>
 #include <algorithm>
 
-enum
-{
+enum {
   ID_AJOUTER = 1,
   ID_ENLEVER,
   ID_VIDER,
@@ -35,21 +34,19 @@ enum
 };
 
 
-#include <film.h>
-
-#include "DialogHelp.h"
-#include "wxProcessVideoThread.h"
+#include "src/ui/dialog_help.h"
+#include "src/ui/process_video_thread.h"
 class film;
 class HelpFrame;
-class DialogShotDetect_c:public wxDialog
+class DialogShotDetect:public wxDialog
 {
 public:
-  // begin wxGlade: DialogShotDetect_c::ids
+  // begin wxGlade: DialogShotDetect::ids
   // end wxGlade
-  DialogShotDetect_c (wxWindow * parent, int id, const wxString & title,
-		      const wxPoint & pos =
-		      wxDefaultPosition, const wxSize & size =
-		      wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
+  DialogShotDetect (wxWindow * parent, int id, const wxString & title,
+                    const wxPoint & pos =
+                      wxDefaultPosition, const wxSize & size =
+                      wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
   film *f;
 private:
   void set_properties ();
@@ -58,8 +55,8 @@ private:
   wxProcessVideoThread *vthread;
 
 protected:
-  // begin wxGlade: DialogShotDetect_c::attributes
-    wxButton * bouton_ajouer;
+  // begin wxGlade: DialogShotDetect::attributes
+  wxButton * bouton_ajouer;
   wxButton *bouton_enlever;
   wxButton *bouton_vider;
   wxButton *bouton_parcourir_xsl;
@@ -97,11 +94,11 @@ protected:
   wxStaticText *label_g_percent;
   wxStaticText *label_time_elapsed;
   HelpFrame *hframe;
-    DECLARE_EVENT_TABLE ();
+  DECLARE_EVENT_TABLE ();
 
 
 public:
-    wxListCtrl * list_films;
+  wxListCtrl * list_films;
   wxCheckBox *checkbox_1;
   wxCheckBox *checkbox_2;
   void AjouterFichier (wxCommandEvent & event);	// wxGlade: <event_handler>
@@ -118,8 +115,7 @@ public:
   int get_time_elapsed ();
 
   void Help (wxCommandEvent & event);
-  inline int GetGlobalProgress (void)
-  {
+  inline int GetGlobalProgress (void) {
     return progress_global->GetValue ();
   };
   struct timeval time_start;

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Johan MATHE - johan.mathe@tremplin-utc.net - Centre
- * Pompidou - IRI This library is free software; you can redistribute it 
+ * Pompidou - IRI This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version
  * 2.1 of the License, or (at your option) any later version. This
@@ -8,30 +8,29 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details. You should have received a copy of the GNU
- * Lesser General Public License along with this library; if not, write to 
+ * Lesser General Public License along with this library; if not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA $Id: DialogShotDetect_c.cpp 138 2007-03-28
+ * Boston, MA 02110-1301 USA $Id: DialogShotDetect.cpp 138 2007-03-28
  * 16:17:26Z johmathe $ $Date: 2007-03-28 18:17:26 +0200 (mer, 28 mar
- * 2007) $ 
+ * 2007) $
  */
 
-#include "DialogShotDetect_c.h"
-#include "wxProcessVideoThread.h"
-#include "DialogHelp.h"
-//#include "icone_cgp.xpm"
+#include "src/ui/dialog_shotdetect.h"
+#include "src/ui/process_video_thread.h"
+#include "src/ui/dialog_help.h"
 
 
 class HelpFrame;
 void
-DialogShotDetect_c::OnQuit (wxCloseEvent &)
+DialogShotDetect::OnQuit (wxCloseEvent &)
 {
   // use Destroy instead.
   Destroy ();
 }
 
 
-DialogShotDetect_c::DialogShotDetect_c (wxWindow * parent, int id, const wxString & title, const wxPoint & pos, const wxSize & size, long style):
-wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+DialogShotDetect::DialogShotDetect (wxWindow * parent, int id, const wxString & title, const wxPoint & pos, const wxSize & size, long style):
+  wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
   //SetIcon (wxICON (icone_cgp));
 
@@ -112,13 +111,13 @@ wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 }
 
 
-BEGIN_EVENT_TABLE (DialogShotDetect_c, wxDialog)
-  // begin wxGlade: DialogShotDetect_c::event_table
-  EVT_MENU (ID_CMD_LAUNCHTHREAD, DialogShotDetect_c::FinProcess) EVT_BUTTON (ID_AJOUTER, DialogShotDetect_c::AjouterFichier) EVT_BUTTON (ID_ENLEVER, DialogShotDetect_c::EnleverFichier) EVT_BUTTON (ID_VIDER, DialogShotDetect_c::ViderListe) EVT_BUTTON (ID_PARCOURIR, DialogShotDetect_c::ParcourirSortie) EVT_BUTTON (ID_PARCOURIR_XSL, DialogShotDetect_c::ParcourirXsl) EVT_BUTTON (ID_LANCER, DialogShotDetect_c::ProcessVideo) EVT_BUTTON (ID_HELP, DialogShotDetect_c::Help) EVT_CLOSE (DialogShotDetect_c::OnQuit)
+BEGIN_EVENT_TABLE (DialogShotDetect, wxDialog)
+  // begin wxGlade: DialogShotDetect::event_table
+  EVT_MENU (ID_CMD_LAUNCHTHREAD, DialogShotDetect::FinProcess) EVT_BUTTON (ID_AJOUTER, DialogShotDetect::AjouterFichier) EVT_BUTTON (ID_ENLEVER, DialogShotDetect::EnleverFichier) EVT_BUTTON (ID_VIDER, DialogShotDetect::ViderListe) EVT_BUTTON (ID_PARCOURIR, DialogShotDetect::ParcourirSortie) EVT_BUTTON (ID_PARCOURIR_XSL, DialogShotDetect::ParcourirXsl) EVT_BUTTON (ID_LANCER, DialogShotDetect::ProcessVideo) EVT_BUTTON (ID_HELP, DialogShotDetect::Help) EVT_CLOSE (DialogShotDetect::OnQuit)
   // end wxGlade
-  END_EVENT_TABLE ();
+END_EVENT_TABLE ();
 
-     void DialogShotDetect_c::FinProcess (wxCommandEvent & event)
+void DialogShotDetect::FinProcess (wxCommandEvent & event)
 {
 
   wxMessageDialog MsgDlg (this, _T ("End of analyse"));
@@ -128,141 +127,134 @@ BEGIN_EVENT_TABLE (DialogShotDetect_c, wxDialog)
 
 
 void
-DialogShotDetect_c::AjouterFichier (wxCommandEvent & event)
+DialogShotDetect::AjouterFichier (wxCommandEvent & event)
 {
   wxFileDialog dialog (this, _T ("Open file for an analyse"), wxEmptyString, wxEmptyString,
 #ifdef __WXMOTIF__
-		       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
+                       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #else
-		       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
+                       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #endif
-    );
+                      );
   dialog.SetDirectory (wxGetHomeDir ());
-  if (dialog.ShowModal () == wxID_OK)
-    {
-      long id = list_films->InsertItem (list_films->GetItemCount (),
-					dialog.GetPath (), 0);
-      list_films->SetItemData (id, 1);
-      list_films->SetItem (id, 2, _T ("00:00:00"));
-      list_films->SetItem (id, 1, _T ("0"));
-    }
+  if (dialog.ShowModal () == wxID_OK) {
+    long id = list_films->InsertItem (list_films->GetItemCount (),
+                                      dialog.GetPath (), 0);
+    list_films->SetItemData (id, 1);
+    list_films->SetItem (id, 2, _T ("00:00:00"));
+    list_films->SetItem (id, 1, _T ("0"));
+  }
   event.Skip ();
 }
 
 
 void
-DialogShotDetect_c::EnleverFichier (wxCommandEvent & event)
+DialogShotDetect::EnleverFichier (wxCommandEvent & event)
 {
   long item = -1;
-  for (;;)
-    {
-      item = list_films->GetNextItem (item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-      if (item == -1)
-	break;
+  for (;;) {
+    item = list_films->GetNextItem (item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    if (item == -1)
+      break;
 
-      // this item is selected - do whatever is needed with it
-      list_films->DeleteItem (item);
-      item = -1;
-    }
+    // this item is selected - do whatever is needed with it
+    list_films->DeleteItem (item);
+    item = -1;
+  }
   event.Skip ();
 }
 
 
 void
-DialogShotDetect_c::ViderListe (wxCommandEvent & event)
+DialogShotDetect::ViderListe (wxCommandEvent & event)
 {
   long item, nb_item = list_films->GetItemCount ();
-  for (item = 0; item < nb_item; item++)
-    {
-      list_films->DeleteItem (0);
-    }
+  for (item = 0; item < nb_item; item++) {
+    list_films->DeleteItem (0);
+  }
   event.Skip ();
 }
 
 
 void
-DialogShotDetect_c::Help (wxCommandEvent & event)
+DialogShotDetect::Help (wxCommandEvent & event)
 {
   hframe->ShowModal ();
   event.Skip ();
 }
 
 void
-DialogShotDetect_c::ParcourirSortie (wxCommandEvent & event)
+DialogShotDetect::ParcourirSortie (wxCommandEvent & event)
 {
 
   wxDirDialog DirDlg (this, _("Choose a path"), wxGetCwd ());
 
-  if (DirDlg.ShowModal () == wxID_OK)
-    {
-      text_chemin_sortie->SetValue (DirDlg.GetPath ());
-    }
+  if (DirDlg.ShowModal () == wxID_OK) {
+    text_chemin_sortie->SetValue (DirDlg.GetPath ());
+  }
 
   event.Skip ();
 }
 
 void
-DialogShotDetect_c::ParcourirXsl (wxCommandEvent & event)
+DialogShotDetect::ParcourirXsl (wxCommandEvent & event)
 {
 
   wxFileDialog dialog (this, _T ("Open an xsl stylesheet"), wxEmptyString, wxEmptyString, _T ("Xslt files (*.xsl;*.xslt)|*.xsl;*.xslt"));
   dialog.SetDirectory (wxGetHomeDir ());
-  if (dialog.ShowModal () == wxID_OK)
-    {
-      text_chemin_xsl->SetValue (dialog.GetPath ());
-    }
+  if (dialog.ShowModal () == wxID_OK) {
+    text_chemin_xsl->SetValue (dialog.GetPath ());
+  }
   event.Skip ();
 }
 
 
 void
-DialogShotDetect_c::ProcessVideo (wxCommandEvent & event)
+DialogShotDetect::ProcessVideo (wxCommandEvent & event)
 {
   /*
-   * Copie des données pour le bon fonctionnement du film 
+   * Copie des données pour le bon fonctionnement du film
    */
   long item, nb_item = list_films->GetItemCount ();
   gettimeofday (&time_start, &time_zone);
-  for (item = 0; item < nb_item; item++)
-    {
-      film f = film (this);
-      f.idfilm = nb_item;
-      f.id = int (item);
-      f.code_lang = "fr";
-      f.title = text_titre->GetLineText (0).ToAscii ();
-      f.input_path = list_films->GetItemText (item).ToAscii ();
-      f.abstract = text_resume->GetLineText (0).ToAscii ();
-      f.year = atoi ((const char *) text_annee->GetLineText (0).ToAscii ());
-      f.author.name = text_auteur_prenom->GetLineText (0).ToAscii ();
-      f.author.surname = (const char *) text_auteur_nom->GetLineText (0).ToAscii ();
-      f.threshold = int (atoi (text_seuil->GetLineText (0).ToAscii ()));
-      f.alphaid = text_id_auteur->GetLineText (0).ToAscii ();
-      f.alphaid += "_";
-      f.alphaid += text_id_film->GetLineText (0).ToAscii ();
-      f.global_path = text_chemin_sortie->GetLineText (0).ToAscii ();
-      films.push_front (f);
-      xml *x = new xml (&(films.front ()));
-      x->xsl_path = text_chemin_xsl->GetLineText (0).ToAscii ();
-      /*
-       * Attention : sous windows, le séparateur est un \\ 
-       */
+  for (item = 0; item < nb_item; item++) {
+    film f = film (this);
+    f.idfilm = nb_item;
+    f.id = int (item);
+    f.code_lang = "fr";
+    f.title = text_titre->GetLineText (0).ToAscii ();
+    f.input_path = list_films->GetItemText (item).ToAscii ();
+    f.abstract = text_resume->GetLineText (0).ToAscii ();
+    f.year = atoi ((const char *) text_annee->GetLineText (0).ToAscii ());
+    f.author.name = text_auteur_prenom->GetLineText (0).ToAscii ();
+    f.author.surname = (const char *) text_auteur_nom->GetLineText (0).ToAscii ();
+    f.threshold = int (atoi (text_seuil->GetLineText (0).ToAscii ()));
+    f.alphaid = text_id_auteur->GetLineText (0).ToAscii ();
+    f.alphaid += "_";
+    f.alphaid += text_id_film->GetLineText (0).ToAscii ();
+    f.global_path = text_chemin_sortie->GetLineText (0).ToAscii ();
+    films.push_front (f);
+    xml *x = new xml (&(films.front ()));
+    x->xsl_path = text_chemin_xsl->GetLineText (0).ToAscii ();
+    /*
+     * Attention : sous windows, le séparateur est un \\
+     */
 #ifdef __WINDOWS__
-      x->xsl_name.assign (x->xsl_path, x->xsl_path.rfind ("\\") + 1, x->xsl_path.rfind (".") - x->xsl_path.rfind ("\\") - 1);
+    x->xsl_name.assign (x->xsl_path, x->xsl_path.rfind ("\\") + 1, x->xsl_path.rfind (".") - x->xsl_path.rfind ("\\") - 1);
 #else
-      x->xsl_name.assign (x->xsl_path, x->xsl_path.rfind ("/") + 1, x->xsl_path.rfind (".") - x->xsl_path.rfind ("/") - 1);
+    x->xsl_name.assign (x->xsl_path, x->xsl_path.rfind ("/") + 1, x->xsl_path.rfind (".") - x->xsl_path.rfind ("/") - 1);
 #endif
-      struct stat *buf = NULL;
-      buf = (struct stat *) malloc (sizeof (struct stat));
-      if ((stat ((const char *) x->xsl_path.c_str (), buf) == -1) || !S_ISREG (buf->st_mode))
-	{
-	  wxMessageDialog MsgDlg (this, _T ("Unable to find an XSL stylesheet !"));
-	  MsgDlg.ShowModal ();
-	  free (buf);
-	  films.clear ();
-	  goto end;
-	}
-      films.front ().x = x;
+    struct stat *buf = NULL;
+    buf = (struct stat *) malloc (sizeof (struct stat));
+    if ((stat ((const char *) x->xsl_path.c_str (), buf) == -1) || !S_ISREG (buf->st_mode)) {
+      wxMessageDialog MsgDlg (this, _T ("Unable to find an XSL stylesheet !"));
+      MsgDlg.ShowModal ();
+      free (buf);
+      films.clear ();
+      goto end;
     }
+    films.front ().x = x;
+  }
 
   vthread = new wxProcessVideoThread (wxTHREAD_DETACHED);
   vthread->Create (this, &films);
@@ -275,7 +267,7 @@ end:
 
 
 void
-DialogShotDetect_c::set_properties ()
+DialogShotDetect::set_properties ()
 {
   SetTitle (wxT ("IRI::ShotDetect"));
   SetSize (wxSize (350, 700));
@@ -293,7 +285,7 @@ DialogShotDetect_c::set_properties ()
 
 
 void
-DialogShotDetect_c::do_layout ()
+DialogShotDetect::do_layout ()
 {
   wxGridSizer *grid_meta = new wxGridSizer (2, 2, 0, 0);
   wxBoxSizer *SizerPrincipal = new wxBoxSizer (wxVERTICAL);
@@ -320,14 +312,14 @@ DialogShotDetect_c::do_layout ()
   wxBoxSizer *sizer_ids = new wxBoxSizer (wxHORIZONTAL);
 
   /*
-   * Mise en place des boutons 
+   * Mise en place des boutons
    */
   SizerBoutons->Add (bouton_ajouer, 0, wxADJUST_MINSIZE, 0);
   SizerBoutons->Add (bouton_enlever, 0, wxADJUST_MINSIZE, 0);
   SizerBoutons->Add (bouton_vider, 0, wxADJUST_MINSIZE, 0);
 
   /*
-   * Mise en place du haut de la fenetre 
+   * Mise en place du haut de la fenetre
    */
   SizerTop->Add (list_films, 1, wxEXPAND, 0);
   SizerTop->Add (SizerBoutons, 0, wxADJUST_MINSIZE, 0);
@@ -335,7 +327,7 @@ DialogShotDetect_c::do_layout ()
   SizerPrincipal->Add (SizerTop, 0, wxEXPAND, 0);
 
   /*
-   * Barres de progession 
+   * Barres de progession
    */
   SizerPrincipal->Add (progress_global, 0, wxEXPAND);
   SizerPrincipal->Add (label_g_percent, 0, wxRIGHT);
@@ -350,26 +342,26 @@ DialogShotDetect_c::do_layout ()
   SizerPrincipal->Add (sizer_horiz_1, 1, wxEXPAND, 0);
 
   /*
-   * Traitement XSL 
+   * Traitement XSL
    */
   SizerPrincipal->Add (LabelXSL, 0, wxADJUST_MINSIZE, 0);
   sizer_horiz_2->Add (text_chemin_xsl, 1, wxADJUST_MINSIZE, 0);
   sizer_horiz_2->Add (bouton_parcourir_xsl, 0, wxADJUST_MINSIZE, 0);
   SizerPrincipal->Add (sizer_horiz_2, 1, wxEXPAND, 0);
   /*
-   * seuil 
+   * seuil
    */
   sizer_seuil->Add (LabelSeuil, 0, wxADJUST_MINSIZE, 0);
   sizer_seuil->Add (text_seuil, 0, wxRIGHT | wxADJUST_MINSIZE, 0);
 
   /*
-   * Offset Frames 
+   * Offset Frames
    */
   sizer_offset->Add (label_frames_offset, 0, wxADJUST_MINSIZE, 0);
   sizer_offset->Add (text_offset_frame, 0, wxADJUST_MINSIZE, 0);
 
   /*
-   * Ajout de tout cela au sizer 2 
+   * Ajout de tout cela au sizer 2
    */
   sizer_check->Add (checkbox_1, 1, wxADJUST_MINSIZE, 0);
   sizer_check->Add (checkbox_2, 1, wxADJUST_MINSIZE, 0);
@@ -381,7 +373,7 @@ DialogShotDetect_c::do_layout ()
 
 
   /*
-   * Mise en place des ids 
+   * Mise en place des ids
    */
   sizer_idauteur->Add (label_id_auteur, 0, wxADJUST_MINSIZE, 0);
   sizer_idauteur->Add (text_id_auteur, 0, wxADJUST_MINSIZE, 0);
@@ -392,31 +384,31 @@ DialogShotDetect_c::do_layout ()
   SizerPrincipal->Add (sizer_ids, 1, wxEXPAND, 0);
 
   /*
-   * Méta données : prénom auteur 
+   * Méta données : prénom auteur
    */
   sizer_prenom->Add (label_prenom, 0, wxADJUST_MINSIZE, 0);
   sizer_prenom->Add (text_auteur_prenom, 0, wxEXPAND, 0);
 
   /*
-   * Méta données : nom auteur 
+   * Méta données : nom auteur
    */
   sizer_nom->Add (label_nom, 0, wxADJUST_MINSIZE, 0);
   sizer_nom->Add (text_auteur_nom, 0, wxEXPAND, 0);
 
   /*
-   * Méta données : titre de l'oeuvre 
+   * Méta données : titre de l'oeuvre
    */
   sizer_titre->Add (label_titre, 0, wxADJUST_MINSIZE, 0);
   sizer_titre->Add (text_titre, 0, wxEXPAND, 0);
 
   /*
-   * Méta données : abstract 
+   * Méta données : abstract
    */
 
 
 
   /*
-   * Méta données : année de l'oeuvre 
+   * Méta données : année de l'oeuvre
    */
   sizer_annee->Add (label_annee, 0, wxADJUST_MINSIZE, 0);
   sizer_annee->Add (text_annee, 0, wxEXPAND, 0);
@@ -427,7 +419,7 @@ DialogShotDetect_c::do_layout ()
   sizer_horiz_5->Add (sizer_annee, 1, wxEXPAND, 0);
 
   /*
-   * Bouton de lancement du process 
+   * Bouton de lancement du process
    */
   SizerPrincipal->Add (sizer_horiz_4, 1, wxEXPAND, 0);
   SizerPrincipal->Add (sizer_horiz_5, 1, wxEXPAND, 0);
@@ -444,7 +436,7 @@ DialogShotDetect_c::do_layout ()
 }
 
 void
-DialogShotDetect_c::set_progress_local (double percent)
+DialogShotDetect::set_progress_local (double percent)
 {
   wxString str;
   str << int (percent);
@@ -454,7 +446,7 @@ DialogShotDetect_c::set_progress_local (double percent)
 }
 
 void
-DialogShotDetect_c::set_progress_global (double val_global)
+DialogShotDetect::set_progress_global (double val_global)
 {
   wxString str;
   str << int (val_global);
@@ -464,7 +456,7 @@ DialogShotDetect_c::set_progress_global (double val_global)
 }
 
 void
-DialogShotDetect_c::set_time_elapsed (double time)
+DialogShotDetect::set_time_elapsed (double time)
 {
   wxString str;
   str << wxT ("temps \xE9\x63oul\xE9 : ");
@@ -474,7 +466,7 @@ DialogShotDetect_c::set_time_elapsed (double time)
 }
 
 int
-DialogShotDetect_c::get_time_elapsed ()
+DialogShotDetect::get_time_elapsed ()
 {
   return (atoi (label_time_elapsed->GetLabel ().ToAscii ()));
 }

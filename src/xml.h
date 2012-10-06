@@ -52,9 +52,11 @@ public:
   string xsl_name;
   void write_data (string &);
   void apply_xsl (string & xml_out);
-    xml (film *);
-   ~xml ();
- inline void set_xsl_path(const string & arg) { xsl_path = arg ;};
+  xml (film *);
+  ~xml ();
+  inline void set_xsl_path(const string & arg) {
+    xsl_path = arg ;
+  };
 };
 
 #endif /* !__XML_H__ */

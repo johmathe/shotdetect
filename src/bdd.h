@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: bdd.h 100 2007-01-29 11:10:37Z johmathe $
  * $Date: 2007-01-29 12:10:37 +0100 (Mon, 29 Jan 2007) $
  */
@@ -21,9 +21,7 @@ using namespace std;
 
 class film;
 
-class bdd
-{
-
+class bdd {
 private:
   film * f;
 
@@ -35,9 +33,9 @@ private:
   int port;
 
 public:
-    bdd (const string host, const string login, const string pwd, int port,
-	 const string base);
-   ~bdd ();
+  bdd (const string host, const string login, const string pwd, int port,
+       const string base);
+  ~bdd ();
   void init_bdd_values ();
   void updatebdd ();
 };
