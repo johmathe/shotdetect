@@ -1,1 +1,0 @@
-shlibs:Depends=libavcodec0d (>= 0.cvs20060823), libavformat0d (>= 0.cvs20060823), libc6 (>= 2.3.6-6), libgcc1 (>= 1:4.1.1-12), libgd2-xpm (>= 2.0.33), libstdc++6 (>= 4.1.1-12), libxml2 (>= 2.6.27), libxslt1.1 (>= 1.1.18), zlib1g (>= 1:1.2.1)

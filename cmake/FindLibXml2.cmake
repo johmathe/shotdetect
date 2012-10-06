@@ -29,8 +29,8 @@
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
-FIND_PACKAGE(PkgConfig QUIET)
-PKG_CHECK_MODULES(PC_LIBXML QUIET libxml-2.0)
+FIND_PACKAGE(PkgConfig)
+PKG_CHECK_MODULES(PC_LIBXML libxml-2.0)
 SET(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
 
 IF(APPLE)
@@ -91,11 +91,11 @@ ELSEIF(LIBXML2_INCLUDE_DIR AND EXISTS "${LIBXML2_INCLUDE_DIR}/libxml/xmlversion.
     UNSET(libxml2_version_str)
 ENDIF()
 
-# handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibXml2
-                                  REQUIRED_VARS LIBXML2_LIBRARIES LIBXML2_INCLUDE_DIR
-                                  VERSION_VAR LIBXML2_VERSION_STRING)
+                                  LIBXML2_LIBRARIES LIBXML2_INCLUDE_DIR
+                                  LIBXML2_VERSION_STRING)
 
 MARK_AS_ADVANCED(LIBXML2_INCLUDE_DIR LIBXML2_LIBRARIES LIBXML2_XMLLINT_EXECUTABLE)

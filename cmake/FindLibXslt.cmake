@@ -29,8 +29,8 @@
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
-FIND_PACKAGE(PkgConfig QUIET)
-PKG_CHECK_MODULES(PC_LIBXSLT QUIET libxslt)
+FIND_PACKAGE(PkgConfig)
+PKG_CHECK_MODULES(PC_LIBXSLT libxslt)
 SET(LIBXSLT_DEFINITIONS ${PC_LIBXSLT_CFLAGS_OTHER})
 
 IF(APPLE)
@@ -96,8 +96,8 @@ ENDIF()
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibXslt
-                                  REQUIRED_VARS LIBXSLT_LIBRARIES LIBXSLT_INCLUDE_DIR
-                                  VERSION_VAR LIBXSLT_VERSION_STRING)
+                                  LIBXSLT_LIBRARIES LIBXSLT_INCLUDE_DIR
+                                  LIBXSLT_VERSION_STRING)
 
 MARK_AS_ADVANCED(LIBXSLT_INCLUDE_DIR
                  LIBXSLT_LIBRARIES
