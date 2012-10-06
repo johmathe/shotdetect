@@ -14,6 +14,10 @@
  * johmathe $ $Date: 2010-10-01 01:35:11 +0200 (Fri, 01 Oct 2010) $
  */
 
+#ifndef UINT64_C
+#define UINT64_C(c) (c ## ULL)
+#endif
+
 #ifdef WXWIDGETS
 #include <wx/msgdlg.h>
 #include <wx/thread.h>
