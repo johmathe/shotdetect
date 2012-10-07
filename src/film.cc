@@ -268,8 +268,8 @@ int film::process ()
    * Register all formats and codecs
    */
   av_register_all ();
-
-  if (av_open_input_file (&pFormatCtx, input_path.c_str (), NULL, 0, NULL) != 0) {
+  pFormatCtx = avformat_alloc_context ();   
+  if (avformat_open_input (&pFormatCtx, input_path.c_str (), NULL, NULL) != 0) {
     string error_msg = "Could not open file ";
     error_msg += input_path;
     shotlog (error_msg);
@@ -279,11 +279,11 @@ int film::process ()
   /*
    * Retrieve stream information
    */
-  if (av_find_stream_info (pFormatCtx) < 0)
+  if (avformat_find_stream_info (pFormatCtx, NULL) < 0)
     return -1;			// Couldn't find stream information
 
 
-  // dump_format (pFormatCtx, 0, input_path.c_str (), false);
+  av_dump_format (pFormatCtx, 0, input_path.c_str (), false);
   videoStream = -1;
   audioStream = -1;
 
@@ -322,7 +322,7 @@ int film::process ()
 
     if (pCodecAudio == NULL)
       return -1;		// Codec not found
-    if (avcodec_open (pCodecCtxAudio, pCodecAudio) < 0)
+    if (avcodec_open2 (pCodecCtxAudio, pCodecAudio, NULL) < 0)
       return -1;		// Could not open codec
 
   }
@@ -336,7 +336,7 @@ int film::process ()
 
     if (pCodec == NULL)
       return -1;		// Codec not found
-    if (avcodec_open (pCodecCtx, pCodec) < 0)
+    if (avcodec_open2 (pCodecCtx, pCodec, NULL) < 0)
       return -1;		// Could not open codec
 
     /*
@@ -501,21 +501,16 @@ int film::process ()
     av_free (pFrameRGBprev);
     avcodec_close (pCodecCtx);
   }
-  /*
-   * Close the codec
-   */
+  
+  // Close the codec
   if (audioStream != -1) {
     /* Close the XML file */
     if (audio_set) close_xml ();
     avcodec_close (pCodecCtxAudio);
   }
 
-  /*
-   * Close the video file
-   */
-  av_close_input_file (pFormatCtx);
-
-
+  // Close the video file
+  avformat_close_input (&pFormatCtx);
 }
 
 void film::init_xml (string filename)
@@ -545,16 +540,14 @@ void film::process_audio ()
   len = packet.size;
 
   while (len > 0) {
-    this->audio_buf = (short *) av_fast_realloc (this->audio_buf, &samples_size, FFMAX (packet.size, AVCODEC_MAX_AUDIO_FRAME_SIZE));
+    this->audio_buf = avcodec_alloc_frame ();
+     // (short *) av_fast_realloc (this->audio_buf, &samples_size, FFMAX (packet.size, AVCODEC_MAX_AUDIO_FRAME_SIZE));
     data_size = samples_size;
     // DEPRECATED: len1 = avcodec_decode_audio (pCodecCtxAudio, audio_buf, &data_size, ptr, len);
-    len1 = avcodec_decode_audio3 (pCodecCtxAudio, audio_buf, &data_size, &packet);
-
+    len1 = avcodec_decode_audio4 (pCodecCtxAudio, audio_buf, &data_size, &packet);
 
     if (len1 < 0) {
-      /*
-       * Error, breaking the frame
-       */
+       // Error, breaking the frame
       len = 0;
       break;
     }

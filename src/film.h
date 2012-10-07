@@ -103,7 +103,7 @@ private:
   int checknumber;
 
   /* Mem allocation */
-  short *audio_buf;
+  AVFrame* audio_buf;
   signed short int sample_right;
   signed short int sample_left;
   int ret;
