@@ -36,7 +36,7 @@ extern "C" {
 
 int film::idfilm = 0;
 
-void film::do_stats (int frame_number)
+void film::do_stats(int frame_number)
 {
   double perctmp = percent;
   struct timeval time_now;
@@ -46,30 +46,30 @@ void film::do_stats (int frame_number)
 #ifdef WXWIDGETS
   int time_elapsed = time_now.tv_sec - dialogParent->time_start.tv_sec;
 
-  if (dialogParent->get_time_elapsed () != time_elapsed) {
-    wxMutexGuiEnter ();
-    dialogParent->set_time_elapsed (time_elapsed);
-    wxMutexGuiLeave ();
+  if(dialogParent->get_time_elapsed() != time_elapsed) {
+    wxMutexGuiEnter();
+    dialogParent->set_time_elapsed(time_elapsed);
+    wxMutexGuiLeave();
   }
 
   percent = ((frame_number) / (fps * (duration.mstotal / 100000)));
 
   if (int (percent) != int (perctmp) || !show_started) {
     double val_global = percent / idfilm + double (progress_state_prev);
-    wxMutexGuiEnter ();
-    dialogParent->set_progress_local (percent);
-    dialogParent->set_progress_global (val_global);
-    wxMutexGuiLeave ();
+    wxMutexGuiEnter();
+    dialogParent->set_progress_local(percent);
+    dialogParent->set_progress_global(val_global);
+    wxMutexGuiLeave();
   }
 #endif
   show_started = 1;
 }
 
-void film::create_main_dir ()
+void film::create_main_dir()
 {
   ostringstream str;
   struct stat *buf;
-  str.str ("");
+  str.str("");
   str << this->global_path << "/" << this->alphaid;
 
   buf = (struct stat *) malloc (sizeof (struct stat));
@@ -306,13 +306,12 @@ int film::process ()
     }
   }
 
-
-
   /*
    * Get a pointer to the codec context for the video stream
    */
   if (audioStream != -1) {
     if (audio_set) {
+      
       string xml_audio = graphpath + "/" + alphaid + "_audio.xml";
       init_xml (xml_audio);
     }
@@ -515,7 +514,11 @@ int film::process ()
 
 void film::init_xml (string filename)
 {
-  fd_xml_audio = fopen (filename.c_str (), "w");
+  fd_xml_audio = fopen (filename.c_str (), "w+");
+  if (fd_xml_audio == NULL) {
+    printf("Impossible to open xml audio file %s.", filename.c_str());
+    exit (EXIT_FAILURE);
+  }
   // FIXME: This may produce an uncaught segmentation fault if the output path doesn't exist:
   fprintf (fd_xml_audio, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<iri>\n<sound sampling=\"%d\" nchannels=\"%d\">", samplearg, nchannel);
 }

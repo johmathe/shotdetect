@@ -67,14 +67,14 @@ void
 graph::save ()
 {
   gdImagePng (im_colors, fdgraph_colors);
-  gdImagePng (im_qte_mvmt, fdqte_mvmt);
+  gdImagePng (im_motion_qty, fdmotion_qty);
   gdImagePng (im_hsv, fdgraph_hsv);
-  gdImageDestroy (im_qte_mvmt);
+  gdImageDestroy (im_motion_qty);
   gdImageDestroy (im_colors);
   gdImageDestroy (im_hsv);
   fclose (fdgraph_hsv);
   fclose (fdgraph_colors);
-  fclose (fdqte_mvmt);
+  fclose (fdmotion_qty);
 }
 
 void
@@ -90,16 +90,16 @@ graph::init_gd ()
    */
   im_colors = gdImageCreate (xsize, ysize);
   im_hsv = gdImageCreateTrueColor (xsize, ysize);
-  im_qte_mvmt = gdImageCreate (xsize, ysize);
+  im_motion_qty = gdImageCreate (xsize, ysize);
 
   /*
    * Declare color indexes
    */
-  background_color = gdImageColorAllocate (im_qte_mvmt, 255, 255, 255);
-  line_color = gdImageColorAllocate (im_qte_mvmt, 0, 0, 0);
-  title_color = gdImageColorAllocate (im_qte_mvmt, 255, 255, 0);
-  grid_color = gdImageColorAllocate (im_qte_mvmt, 0, 0, 0);
-  threshold_color = gdImageColorAllocate (im_qte_mvmt, 255, 0, 0);
+  background_color = gdImageColorAllocate (im_motion_qty, 255, 255, 255);
+  line_color = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  title_color = gdImageColorAllocate (im_motion_qty, 255, 255, 0);
+  grid_color = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  threshold_color = gdImageColorAllocate (im_motion_qty, 255, 0, 0);
 
 
   /*
@@ -117,11 +117,11 @@ graph::init_gd ()
    * Open file descriptors (POSIX C)
    */
   filename_colors = global_path + "/colors.png";
-  filename_qte_mvmt = global_path + "/qte_mvmt.png";
+  filename_motion_qty = global_path + "/motion_qty.png";
   filename_hsv = global_path + "/hsv.png";
   fdgraph_hsv = fopen (filename_hsv.c_str (), "wb");
   fdgraph_colors = fopen (filename_colors.c_str (), "wb");
-  fdqte_mvmt = fopen (filename_qte_mvmt.c_str (), "wb");
+  fdmotion_qty = fopen (filename_motion_qty.c_str (), "wb");
 }
 
 void
@@ -142,7 +142,7 @@ graph::draw_all_canvas ()
   string str = "RGB colors";
   draw_canvas (im_colors, str);
   str = "Quantity of movement";
-  draw_canvas (im_qte_mvmt, str);
+  draw_canvas (im_motion_qty, str);
 
 
   back_true_color = gdTrueColor (255, 255, 255);
@@ -250,20 +250,17 @@ graph::draw_canvas (gdImagePtr im, string title)
 
 
 void
-graph::draw_datas ()
-{
+graph::draw_datas () {
   /*
    * Loop for creation of data axes in the graph images
    */
   for (int i = 1; i < data.size () - 1; i++) {
-    gdImageLine (im_qte_mvmt, i - 1 + xoffset, (-data[i - 1].global) +xaxis_offset, i + xoffset, (-data[i].global) +xaxis_offset, line_color);
+    gdImageLine (im_motion_qty, i - 1 + xoffset, (-data[i - 1].global) +xaxis_offset, i + xoffset, (-data[i].global) +xaxis_offset, line_color);
   }
   /*
    * Draw the threshold line
    */
-  gdImageLine (im_qte_mvmt, xoffset, xaxis_offset - threshold, xsize - xoffset, xaxis_offset - threshold, threshold_color);
-
-
+  gdImageLine (im_motion_qty, xoffset, xaxis_offset - threshold, xsize - xoffset, xaxis_offset - threshold, threshold_color);
 }
 
 

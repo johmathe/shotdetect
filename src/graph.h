@@ -41,11 +41,11 @@ private:
 
   /* Private properties for class-internal functions */
   gdImagePtr im_colors;
-  gdImagePtr im_qte_mvmt;
+  gdImagePtr im_motion_qty;
   gdImagePtr im_hsv;
 
   FILE *pngout;
-  string filename_qte_mvmt;
+  string filename_motion_qty;
   string filename_colors;
   string filename_hsv;
   string global_path;
@@ -74,7 +74,7 @@ private:
   bool grid;
   int ptr;
   /* Graph file handles */
-  FILE *fdqte_mvmt;
+  FILE *fdmotion_qty;
   FILE *fdgraph_colors;
   FILE *fdgraph_hsv;
   /* XML file handles */

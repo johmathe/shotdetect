@@ -129,7 +129,7 @@ int image::SaveFrame (AVFrame * pFrame, int frame_number)
     str << f->global_path << "/" << thumb;
 
     /* Prepare file */
-    if ((minijpgout = fopen (str.str ().c_str (), "wb")) == NULL) {
+    if ((minijpgout = fopen (str.str().c_str (), "wb")) == NULL) {
       cerr << str.str () << endl;
       perror ("shotdetect ");
       exit (EXIT_FAILURE);
