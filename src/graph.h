@@ -13,7 +13,7 @@
 #include <gdfontl.h>
 #include <iostream>
 
-#include "film.h"
+#include "src/film.h"
 #define SIZE_DATA 180000
 #define JPG 1
 #define PNG 2

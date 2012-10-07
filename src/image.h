@@ -30,7 +30,7 @@ extern "C" {
 #include <unistd.h>
 
 
-#include "film.h"
+#include "src/film.h"
 
 #include <gd.h>
 #ifdef WXWIDGETS

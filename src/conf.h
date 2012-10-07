@@ -7,7 +7,7 @@
 #ifndef __CONF_H__
 #define __CONF_H__
 
-#include "film.h"
+#include "src/film.h"
 
 class conf
 {

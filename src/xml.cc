@@ -14,8 +14,8 @@
  * johmathe $ $Date: 2010-10-01 01:02:58 +0200 (Fri, 01 Oct 2010) $
  */
 
-#include "xml.h"
-#include "shot.h"
+#include "src/xml.h"
+#include "src/shot.h"
 
 using namespace std;
 class film;

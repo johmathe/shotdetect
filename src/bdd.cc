@@ -22,7 +22,7 @@
  */
 
 
-#include "bdd.h"
+#include "src/bdd.h"
 
 
 // http://casteyde.christian.free.fr/cpp/cours/online/c5501.html#AEN5702

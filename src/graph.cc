@@ -13,7 +13,7 @@
  * Boston, MA 02110-1301 USA $Id: graph.cpp 131 2007-03-22 15:46:52Z
  * johmathe $ $Date: 2010-10-01 01:02:58 +0200 (Fri, 01 Oct 2010) $
  */
-#include "graph.h"
+#include "src/graph.h"
 
 using namespace std;
 

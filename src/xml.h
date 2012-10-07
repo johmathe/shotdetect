@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
-#include "film.h"
-#include "shot.h"
+#include "src/film.h"
+#include "src/shot.h"
 
 #include <string.h>
 #include <libxml2/libxml/xmlmemory.h>

@@ -12,7 +12,7 @@
 #include <string.h>
 #include <iostream>
 #include <string>
-#include "film.h"
+#include "src/film.h"
 
 // http://docs.postgresqlfr.org/8.1/libpq-exec.html
 // http://www.postgresql.org/docs/8.1/interactive/libpq.html#LIBPQ-CONNECT
