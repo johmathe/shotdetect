@@ -60,7 +60,7 @@ int image::create_img_dir ()
 
   }
   free (buf);
-
+  return 0;
 }
 
 int image::SaveFrame (AVFrame * pFrame, int frame_number)

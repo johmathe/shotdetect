@@ -510,6 +510,7 @@ int film::process ()
 
   // Close the video file
   avformat_close_input (&pFormatCtx);
+  return 0;
 }
 
 void film::init_xml (string filename)

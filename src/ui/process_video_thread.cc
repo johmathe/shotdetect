@@ -34,6 +34,7 @@ wxProcessVideoThread::Entry ()
 
   wxCommandEvent event (wxEVT_COMMAND_MENU_SELECTED, ID_CMD_LAUNCHTHREAD);
   wxPostEvent (dialogParent, event);
+  return NULL;
 }
 
 wxProcessVideoThread::wxProcessVideoThread (wxThreadKind kind = wxTHREAD_JOINABLE):wxThread (kind)

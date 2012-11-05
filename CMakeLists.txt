@@ -1,5 +1,6 @@
 # CMake integration by Christian Frisson
-
+ SET (CMAKE_C_COMPILER             "/usr/bin/clang")
+SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
 cmake_minimum_required(VERSION 2.8)
 PROJECT(shotdetect)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
