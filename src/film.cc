@@ -36,6 +36,13 @@ extern "C" {
 
 int film::idfilm = 0;
 
+void film::log_progress(string type, int position, int total)
+{
+  if (this->get_progress()) {
+    cerr << type << " " << position << " " << total << endl;
+  }
+}
+
 void film::do_stats(int frame_number)
 {
   double perctmp = percent;
@@ -138,9 +145,7 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
     s.msbegin = int ((frame_number * 1000) / fps);
     s.myid = shots.back ().myid + 1;
 
-#ifdef DEBUG
-    cerr << "Shot log :: " << s.msbegin << endl;
-#endif
+    this->log_progress("shot", s.msbegin, duration.mstotal);
 
     /*
      * Convert to ms
@@ -397,6 +402,10 @@ int film::process ()
       if (frameFinished) {
         frame_number = pCodecCtx->frame_number; // Current frame number
 
+        // Report progress information every 100 frames
+        if (frame_number % 100 == 0) {
+          this->log_progress("progress", int((frame_number * 1000) / fps), duration.mstotal);
+        }
         // Convert the image into RGB24
         if (! img_convert_ctx) {
           img_convert_ctx = sws_getContext(width, height, pCodecCtx->pix_fmt,
