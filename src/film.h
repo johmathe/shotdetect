@@ -187,6 +187,8 @@ public:
   double percent;
   /* Showing state started */
   bool show_started;
+  /* Output progress information */
+  bool progress;
   xml *x;
   bool display;
 
@@ -194,6 +196,7 @@ public:
   void process_audio ();
   void shotlog(string message);
   void create_main_dir(void);
+  void log_progress(string message, int position, int total);
 
   /* Constructor */
   film ();
@@ -241,6 +244,9 @@ public:
   inline void set_title(string title) {
     this->title = title;
   };
+  inline void set_progress(bool progress) {
+    this->progress = progress;
+  };
 
   inline bool get_first_img(void) {
     return this->first_img_set ;
@@ -268,6 +274,9 @@ public:
   };
   inline double get_fps(void)     {
     return this->fps ;
+  };
+  inline bool get_progress(void)  {
+    return this->progress ;
   };
 
 };

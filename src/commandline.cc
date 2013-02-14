@@ -47,6 +47,7 @@ show_help (char **argv)
           "Shotdetect (IRI - johmathe - $Id: main.cpp 164 2007-10-13 23:53:21Z johmathe $)\n"
           "-h           : show this help\n"
           "-i file      : input file path\n"
+          "-p           : output progress report information\n"
           "-o path      : output path\n"
           "-s threshold : threshold\n"
           "-w           : generate xml of waveform\n"
@@ -72,7 +73,7 @@ main (int argc, char **argv)
   f.threshold=60;
 
   for (;;) {
-    int c = getopt (argc, argv, "?ht:i:o:s:flwvmr");
+    int c = getopt (argc, argv, "?ht:i:o:s:flpwvmr");
 
     if (c < 0) {
       break;
@@ -102,6 +103,10 @@ main (int argc, char **argv)
       /* generer l'image en miniature */
     case 'm':
       f.set_thumb(true);
+      break;
+
+    case 'p':
+      f.set_progress(true);
       break;
 
       /* generer le xml pour les donnees video */
