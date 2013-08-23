@@ -76,6 +76,10 @@ int main (int argc, char **argv) {
   extern char *optarg;
   extern int optind, opterr, optopt;
 
+
+  // Initialize threshold to a sensible default value
+  f.threshold=DEFAULT_THRESHOLD;
+
   for (;;) {
     int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmr");
 
@@ -90,11 +94,12 @@ int main (int argc, char **argv) {
       exit (EXIT_SUCCESS);
       break;
 
-      /* Draw first and/or last image of scene cut? */
+      /* Draw first image of scene cut? */
     case 'f':
       f.set_first_img(true);
       break;
 
+      /* Draw last image of scene cut? */
     case 'l':
       f.set_last_img(true);
       break;
@@ -137,10 +142,6 @@ int main (int argc, char **argv) {
       xsl_path_set = true;
       break;
 
-    case 'n':
-      gui = false;
-      break;
-
       /* Set the title */
     case 't':
       f.set_title(optarg);
@@ -151,15 +152,23 @@ int main (int argc, char **argv) {
       f.set_year(atoi (optarg));
       break;
 
+      /* Set the input file */
     case 'i':
       f.set_ipath(optarg);
       ifile_set = true;
       break;
 
+      /* Set the output file */
     case 'o':
       f.set_opath(optarg);
       ofile_set = true;
       break;
+
+      /* Run without GUI */
+    case 'n':
+      gui = false;
+      break;
+
 
     default:
       break;
@@ -171,17 +180,15 @@ int main (int argc, char **argv) {
     // Error handling
     if ( !ifile_set || !ofile_set || !id_set ) {
       if (!ifile_set) {
-        cerr << "please specify an input file" << endl;
-        show_help (argv);
+        cerr << "ERROR: Input filename is missing or empty. See argument '-i'" << endl;
       }
       if (!ofile_set) {
-        cerr << "please specify an output path" << endl;
-        show_help (argv);
+        cerr << "ERROR: Output path is missing or empty. See argument '-o'" << endl;
       }
       if (!id_set) {
-        cerr << "please specify an alphanumeric id" << endl;
-        show_help (argv);
+        cerr << "ERROR: please specify an alphanumeric id. See argument '-a'" << endl;
       }
+      show_help (argv);
       exit (EXIT_FAILURE);
     }
 

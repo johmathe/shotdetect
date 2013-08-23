@@ -107,7 +107,6 @@ graph::init_gd ()
    */
   background_color = gdImageColorAllocate (im_colors, 255, 255, 255);
   line_color = gdImageColorAllocate (im_colors, 0, 0, 0);
-  title_color = gdImageColorAllocate (im_colors, 255, 255, 0);
   grid_color = gdImageColorAllocate (im_colors, 0, 0, 0);
   red_color = gdImageColorAllocate (im_colors, 255, 0, 0);
   green_color = gdImageColorAllocate (im_colors, 0, 255, 0);
@@ -178,10 +177,7 @@ graph::draw_all_canvas ()
     if (!(i % grid_size)) {
       gdImageLine (im_hsv, i, xaxis_offset - 2, i, xaxis_offset + 2, grid_color);
     }
-
   }
-
-
 }
 
 void
