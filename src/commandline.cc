@@ -17,7 +17,8 @@
 #include "src/film.h"
 #include "src/xml.h"
 
-#define APP_VERSION "SVN-r$Revision: 194 $-$Author: peterb $"
+#define APP_VERSION "2.0.0-git"     // This is also being declared in "main.cc"
+
 class xml;
 class film;
 
@@ -44,7 +45,7 @@ class film;
 void
 show_help (char **argv)
 {
-  printf ("\nShotdetect version \"%s\" ($Date: 2010-10-01 01:35:11 +0200 (Fri, 01 Oct 2010) $), Copyright (c) 2007-2010 Johan Mathe\n\n"
+  printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
           "Usage: %s \n"
           "-h           : show this help\n"
           "-s threshold : threshold\n"
