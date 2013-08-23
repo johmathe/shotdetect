@@ -100,6 +100,7 @@ graph::init_gd ()
   title_color = gdImageColorAllocate (im_motion_qty, 255, 255, 0);
   grid_color = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
   threshold_color = gdImageColorAllocate (im_motion_qty, 255, 0, 0);
+  timecode_color = grid_color;
 
 
   /*
@@ -228,15 +229,17 @@ graph::draw_canvas (gdImagePtr im, string title)
 
         // Write video position as grid label:
         //printf("%d:%02d:%02d.%02d\n", hour, minute, second, frame);
-        /*sprintf(time, "%d:%02d:%02d.%02d", hour, minute, second, frame);
+        if (this->f->show_timecode == true) {
+        sprintf(time, "%d:%02d:%02d.%02d", hour, minute, second, frame);
 
         gdImageString (im,
           gdFontGetLarge(),
           x - (strlen(time) * gdFontGetLarge()->w / 2),
           xaxis_offset + 8,
           (unsigned char *) time,
-          grid_color
-        );*/
+          timecode_color
+        );
+        }
       }
       //if (!(i % grid_size)) //CF
       gdImageLine (im, x, xaxis_offset - 1, x, xaxis_offset + tick_length, grid_color);

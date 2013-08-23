@@ -48,6 +48,7 @@ show_help (char **argv)
   printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
           "Usage: %s \n"
           "-h           : show this help\n"
+          "-n           : commandline mode (disable GUI)\n"
           "-s threshold : threshold (Default=%d)\n"
           "-i file      : input file path\n"
           "-o path      : output path\n"
@@ -59,7 +60,8 @@ show_help (char **argv)
           "-f           : generate first image for each shot\n"
           "-l           : generate last image for each shot\n"
           "-m           : generate the thumbnail image\n"
-          "-r           : generate the images in native resolution\n",
+          "-r           : generate the images in native resolution\n"
+          "-c           : print timecode on x-axis in graph\n",
           APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
@@ -87,7 +89,7 @@ main (int argc, char **argv)
   f.threshold=DEFAULT_THRESHOLD;
 
   for (;;) {
-    int c = getopt (argc, argv, "?ht:y:i:o:a:x:s:flwvmr");
+    int c = getopt (argc, argv, "?ht:y:i:o:a:x:s:flwvmrc");
 
     if (c < 0) {
       break;
@@ -133,6 +135,11 @@ main (int argc, char **argv)
       /* Set the threshold */
     case 's':
       f.set_threshold(atoi (optarg));
+      break;
+
+      /* Embed timecode in graph  */
+    case 'c':
+      f.set_show_timecode(true);
       break;
 
       /* Id for path creation */

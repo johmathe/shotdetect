@@ -56,7 +56,8 @@ void show_help (char **argv) {
           "-f           : generate first image for each shot\n"
           "-l           : generate last image for each shot\n"
           "-m           : generate the thumbnail image\n"
-          "-r           : generate the images in native resolution\n",
+          "-r           : generate the images in native resolution\n"
+          "-c           : print timecode on x-axis in graph\n",
           APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
@@ -82,7 +83,7 @@ int main (int argc, char **argv) {
   f.threshold=DEFAULT_THRESHOLD;
 
   for (;;) {
-    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmr");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmrc");
 
     if (c < 0) {
       break;
@@ -130,6 +131,10 @@ int main (int argc, char **argv) {
       f.set_threshold(atoi (optarg));
       break;
 
+      /* Embed timecode in graph  */
+    case 't':
+      f.set_show_timecode(true);
+      break;
 
       /* Id for path creation */
     case 'a':

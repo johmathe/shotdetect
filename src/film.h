@@ -179,6 +179,8 @@ public:
   string code_lang;
   /* Processing threshold */
   int threshold;
+  /* Embed timecode */
+  int show_timecode;
   /* Alphanumeric ID */
   string alphaid;
   /* Absolute path */
@@ -225,6 +227,9 @@ public:
   };
   inline void set_threshold(int threshold) {
     this->threshold = threshold;
+  };
+  inline void set_show_timecode(bool val) {
+    this->show_timecode = val;
   };
   inline void set_ipath(string path) {
     this->input_path = path;

@@ -94,6 +94,7 @@ private:
   int green_color;
   int blue_color;
   int threshold_color;
+  int timecode_color;
   void draw_canvas (gdImagePtr im, string title);
   float MAX(float a, float b, float c);
   float MIN(float a, float b, float c);
