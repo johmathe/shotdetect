@@ -25,11 +25,11 @@ class film;
 //Example
 //Put the file you want to analyse in the same directory of shotdetect (it not mandatory but it’s easier with the command line)
 
-//shotdetect -i myvideo.avi -o output_dir -s 60 -w -v -f -l -m -r
+//shotdetect -i myvideo.avi -o output_dir -s 75 -w -v -f -l -m -r
 
 //Options details
 //-s : set threshold
-//The threshold is the level for shot detection. High will not detect a lot, low will detect a lot of false shots. A good choice is about 60.
+//The threshold is the level for shot detection. High will not detect a lot, low will detect a lot of false shots. A good choice is about 75.
 
 //-w : generates audio xml informations
 //See the generated file for more details
@@ -48,7 +48,7 @@ show_help (char **argv)
   printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
           "Usage: %s \n"
           "-h           : show this help\n"
-          "-s threshold : threshold\n"
+          "-s threshold : threshold (Default=%d)\n"
           "-i file      : input file path\n"
           "-o path      : output path\n"
           "-y year      : set the year\n"
@@ -61,7 +61,8 @@ show_help (char **argv)
           "-m           : generate the thumbnail image\n"
           "-r           : generate the images in native resolution\n",
           APP_VERSION,
-          argv[0]
+          argv[0],
+          DEFAULT_THRESHOLD
          );
 }
 
@@ -83,7 +84,7 @@ main (int argc, char **argv)
 
 
   // Initialize threshold to a sensible default value
-  f.threshold=60;
+  f.threshold=DEFAULT_THRESHOLD;
 
   for (;;) {
     int c = getopt (argc, argv, "?ht:y:i:o:a:x:s:flwvmr");

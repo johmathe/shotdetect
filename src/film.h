@@ -46,7 +46,7 @@ extern "C" {
 
 #define DEFAULT_BDD_PORT 5432
 #define DEFAULT_THUMB_HEIGHT 85
-#define DEFAULT_THRESHOLD 60
+#define DEFAULT_THRESHOLD 75
 
 #define RATIO 327
 #define MIN_INT -32768
@@ -224,7 +224,7 @@ public:
     this->input_path = input_file;
   };
   inline void set_threshold(int threshold) {
-    this->threshold=threshold;
+    this->threshold = threshold;
   };
   inline void set_ipath(string path) {
     this->input_path = path;

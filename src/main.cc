@@ -45,7 +45,7 @@ void show_help (char **argv) {
           "Usage: %s \n"
           "-h           : show this help\n"
           "-n           : commandline mode (disable GUI)\n"
-          "-s threshold : threshold\n"
+          "-s threshold : threshold (Default=%d)\n"
           "-i file      : input file path\n"
           "-o path      : output path\n"
           "-y year      : set the year\n"
@@ -58,7 +58,8 @@ void show_help (char **argv) {
           "-m           : generate the thumbnail image\n"
           "-r           : generate the images in native resolution\n",
           APP_VERSION,
-          argv[0]
+          argv[0],
+          DEFAULT_THRESHOLD
          );
 }
 
