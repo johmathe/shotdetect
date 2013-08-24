@@ -14,10 +14,9 @@
  */
 #include <stdlib.h>
 
+#include "src/version.h"
 #include "src/film.h"
 #include "src/xml.h"
-
-#define APP_VERSION "2.0.0-git"     // This is also being declared in "main.cc"
 
 class xml;
 class film;
@@ -62,7 +61,7 @@ show_help (char **argv)
           "-m           : generate the thumbnail image\n"
           "-r           : generate the images in native resolution\n"
           "-c           : print timecode on x-axis in graph\n",
-          APP_VERSION,
+          g_APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
          );

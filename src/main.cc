@@ -18,11 +18,10 @@
 #include <wx/image.h>
 #include <wx/cmdline.h>
 
+#include "src/version.h"
 #include "src/film.h"
-#include "src/ui/dialog_shotdetect.h"
 #include "src/xml.h"
-
-#define APP_VERSION "2.0.0-git"     // This is also being declared in "commandline.cc"
+#include "src/ui/dialog_shotdetect.h"
 
 class xml;
 class film;
@@ -58,7 +57,7 @@ void show_help (char **argv) {
           "-m           : generate the thumbnail image\n"
           "-r           : generate the images in native resolution\n"
           "-c           : print timecode on x-axis in graph\n",
-          APP_VERSION,
+          g_APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
          );
