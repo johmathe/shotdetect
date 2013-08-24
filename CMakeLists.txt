@@ -179,8 +179,22 @@ IF(USE_WXWIDGETS AND wxWidgets_FOUND)
 	SET(${TARGET_NAME}_GUI_HDRS src/ui/dialog_help.h src/ui/dialog_shotdetect.h src/ui/process_video_thread.h)
 	ADD_EXECUTABLE(${TARGET_NAME}-gui ${APP_TYPE} ${${TARGET_NAME}_GUI_SRCS} ${${TARGET_NAME}_GUI_HDRS})
 	TARGET_LINK_LIBRARIES(${TARGET_NAME}-gui ${TARGET_NAME})
+    # Make this target optional to install:
+    SET(TARGETS_TO_INSTALL ${TARGET_NAME}-gui)
 ELSE()
 	SET(${TARGET_NAME}_COMMANDLINE_SRCS src/commandline.cc)
 	ADD_EXECUTABLE(${TARGET_NAME}-cmd ${${TARGET_NAME}_COMMANDLINE_SRCS})
 	TARGET_LINK_LIBRARIES(${TARGET_NAME}-cmd ${TARGET_NAME})
+    # Make this target optional to install:
+    SET(TARGETS_TO_INSTALL ${TARGET_NAME}-cmd)
 ENDIF()
+
+
+# Routines for installing shotdetect.
+# Taken from official documentation (http://www.cmake.org/cmake/help/cmake2.6docs.html#command:install)
+install( 
+    TARGETS ${TARGETS_TO_INSTALL}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static
+)
