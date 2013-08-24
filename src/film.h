@@ -86,6 +86,7 @@ private:
   AVCodecContext *pCodecCtxAudio;
   AVCodec *pCodec;
   AVCodec *pCodecAudio;
+  // Image information per frame:
   AVFrame *pFrame;
   AVFrame *pFrameRGB;
   AVFrame *pFrameRGBprev;

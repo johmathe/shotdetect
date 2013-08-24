@@ -258,6 +258,7 @@ int film::process ()
   static struct SwsContext *img_convert_ctx = NULL;
   int frame_number;
 
+  printf("film::process()\n"); //DELME
   create_main_dir ();
 
   string graphpath = this->global_path + "/" + this->alphaid;
@@ -339,11 +340,13 @@ int film::process ()
       return -1;		// Could not open codec
 
     /*
-     * Allocate video frame
+     * Allocate current and previous video frames 
      */
     pFrame = avcodec_alloc_frame ();
-    pFrameRGB = avcodec_alloc_frame ();
-    pFrameRGBprev = avcodec_alloc_frame ();
+    // RGB:
+    pFrameRGB = avcodec_alloc_frame ();     // current frame
+    pFrameRGBprev = avcodec_alloc_frame (); // previous frame
+    
 
     /*
      * Determine required buffer size and allocate buffer
@@ -354,10 +357,10 @@ int film::process ()
     buffer2 = (uint8_t *) malloc (sizeof (uint8_t) * numBytes);
 
     /*
-     * Assign appropriate parts of buffer to image planes in pFrameRGB
+     * Assign appropriate parts of buffer to image planes
      */
+    // RGB:
     avpicture_fill ((AVPicture *) pFrameRGB, buffer, PIX_FMT_RGB24, width, height);
-
     avpicture_fill ((AVPicture *) pFrameRGBprev, buffer2, PIX_FMT_RGB24, width, height);
 
 
@@ -635,6 +638,7 @@ film::film (DialogShotDetect * d)
 
 film::film()
 {
+  printf("film::constructor\n"); //DELME
   // Initialization of default values (non GUI)
   display = 0;
   threshold = DEFAULT_THRESHOLD;

@@ -19,6 +19,11 @@
 #define PNG 2
 #define BMP 3
 
+#define IM_CANVAS 0
+#define IM_MOTION_QTY 1
+#define IM_RGB_COLORS 2
+#define IM_HSV_COLORS 3
+
 
 using namespace std;
 
@@ -82,19 +87,22 @@ private:
 
   film *f;
   vector < dataframe > data;
+
   /* Graph colors */
-  int line_color;
-  int background_color;
-  int title_color;
-  int legend_color;
-  int grid_color;
+  struct graph_color{
+    int background;
+    int line;
+    int title;
+    int legend;
+    int grid;
+    int red;
+    int green;
+    int blue;
+    int threshold;
+    int timecode;
+  };
+  vector < graph_color > graph_colors;
 
-
-  int red_color;
-  int green_color;
-  int blue_color;
-  int threshold_color;
-  int timecode_color;
   void draw_canvas (gdImagePtr im, string title);
   float MAX(float a, float b, float c);
   float MIN(float a, float b, float c);
@@ -132,6 +140,10 @@ public:
     frame.blue = blue;
     rgb_to_hsv(float(red), float(green), float(blue), &(frame.hue), &(frame.saturation), &(frame.value));
     data.push_back (frame);
+  }
+
+  inline void set_color(graph_color graph_color) {
+    graph_colors.push_back(graph_color);
   }
 };
 
