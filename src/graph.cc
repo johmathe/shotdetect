@@ -399,16 +399,16 @@ graph::draw_color_datas ()
   /*
    * Draw color graphs (RGB, HSV)
    */
-  for (int i = 1; i < data.size () - 1; i++) {
+  for (int i = 1; i < colors_rgb.size () - 1; i++) {
     // RGB:
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].red) + xaxis_offset, i + xoffset, (-data[i].red) + xaxis_offset, graph_colors[IM_RGB_COLORS].red);
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].green) + xaxis_offset, i + xoffset, (-data[i].green) + xaxis_offset, graph_colors[IM_RGB_COLORS].green);
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].blue) + xaxis_offset, i + xoffset, (-data[i].blue) + xaxis_offset, graph_colors[IM_RGB_COLORS].blue);
+    gdImageLine (im_colors, i - 1 + xoffset, (-colors_rgb[i - 1].c1) + xaxis_offset, i + xoffset, (-colors_rgb[i].c1) + xaxis_offset, graph_colors[IM_RGB_COLORS].red);
+    gdImageLine (im_colors, i - 1 + xoffset, (-colors_rgb[i - 1].c2) + xaxis_offset, i + xoffset, (-colors_rgb[i].c2) + xaxis_offset, graph_colors[IM_RGB_COLORS].green);
+    gdImageLine (im_colors, i - 1 + xoffset, (-colors_rgb[i - 1].c3) + xaxis_offset, i + xoffset, (-colors_rgb[i].c3) + xaxis_offset, graph_colors[IM_RGB_COLORS].blue);
 
     // HSV:
-    hsv_to_rgb (&r, &g, &b, data[i].hue, float (1), float (1));
-    hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));
-    gdImageLine (im_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-data[i].saturation) * 255)) +xaxis_offset - 1, hsv_color);
+    hsv_to_rgb (&r, &g, &b, colors_hsv[i].c1, float (1), float (1));
+    hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));  // Set the drawing color RGB values according to "hsv_to_rgb()"
+    gdImageLine (im_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-colors_hsv[i].c2) * 255)) +xaxis_offset - 1, hsv_color);
 
     // YUV:
     // TODO: im_yuv
@@ -433,14 +433,14 @@ graph::write_xml (string filename)
     float g;
     float b;
 
-    hsv_to_rgb (&r, &g, &b, data[index].hue, float (1), float (1));
+    hsv_to_rgb (&r, &g, &b, colors_hsv[index].c1, float (1), float (1));
 
     fprintf (fd_xml, "<v m=\"%d\" r=\"%d\" g=\"%d\" b=\"%d\" s=\"%d\" />\n",
              data[index].global,
              int (r * 255),
              int (g * 255),
              int (b * 255),
-             int (data[index].saturation * 100)
+             int (colors_hsv[index].c2 * 100)
             );
   }
   fprintf (fd_xml, "</frame>\n</iri>");

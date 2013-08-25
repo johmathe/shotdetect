@@ -82,10 +82,39 @@ void film::create_main_dir()
   }
 }
 
+void film::get_yuv_colors(AVFrame * pFrame, AVFrame * pFramePrev)
+{
+  int x;
+  int y;
+  char c1, c2, c3;
+  int c1tot, c2tot, c3tot;
+
+  for (y = 0; y < height; y++) {
+    for (x = 0; x < width; x++) {
+
+      c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
+      c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
+      c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
+
+      c1tot += int (c1 + 127);
+      c2tot += int (c2 + 127);
+      c3tot += int (c3 + 127);
+    }
+  }
+
+  g->push_yuv(c1, c2, c3);
+}
+
+/*
+ * This function gathers the RGB values per frame and evaluates the
+ * possibility if this frame is a detected shot.
+ * If a shot is detected, this function also creates the image files
+ * for this scene cut.
+ */
 void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
 {
-  int y;
   int x;
+  int y;
   int diff;
   int frame_number = pCodecCtx->frame_number;
   char c1, c2, c3;
@@ -125,12 +154,17 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   c3tot /= nbpx;
 
   /*
-   * Derivee numerique
+   * Calculate numerical difference between this and the previous frame
    */
   diff = abs (score - prev_score);
   prev_score = score;
 
-  g->push_data (score, c1tot, c2tot, c3tot);
+  /*
+   * Store gathered data
+   */
+  g->push_data (score);
+  g->push_rgb(c1tot, c2tot, c3tot);
+  g->push_rgb_to_hsv(c1tot, c2tot, c3tot);
 
   if (diff > this->threshold && score > this->threshold) {
     shot s;
@@ -256,6 +290,7 @@ int film::process ()
   int numBytes;
   shot s;
   static struct SwsContext *img_convert_ctx = NULL;
+  static struct SwsContext *img_ctx = NULL;
   int frame_number;
 
   create_main_dir ();
@@ -376,8 +411,6 @@ int film::process ()
     s.myid = 0;
     shots.push_back (s);
 
-
-
   }
 
 #ifdef WXWIDGETS
@@ -398,11 +431,22 @@ int film::process ()
    */
   while (av_read_frame (pFormatCtx, &packet) >= 0) {
     if (packet.stream_index == videoStream) {
-      // DEPRECATED: avcodec_decode_video (pCodecCtx, pFrame, &frameFinished, packet.data, packet.size);
       avcodec_decode_video2 (pCodecCtx, pFrame, &frameFinished, &packet);
 
       if (frameFinished) {
         frame_number = pCodecCtx->frame_number; // Current frame number
+
+        // Extract YUV values
+        // TODO
+        if (! img_ctx) {
+          img_ctx = sws_getContext(width, height, pCodecCtx->pix_fmt,
+                                           width, height, PIX_FMT_YUV444P, SWS_BICUBIC,
+                                           NULL, NULL, NULL);
+          if (! img_ctx) {
+            fprintf(stderr, "Cannot initialize the converted YUV image context!\n");
+            exit(1);
+          }
+        }
 
         // Convert the image into RGB24
         if (! img_convert_ctx) {
@@ -410,13 +454,21 @@ int film::process ()
                                            width, height, PIX_FMT_RGB24, SWS_BICUBIC,
                                            NULL, NULL, NULL);
           if (! img_convert_ctx) {
-            fprintf(stderr, "Cannot initialize the conversion context!\n");
+            fprintf(stderr, "Cannot initialize the converted RGB image context!\n");
             exit(1);
           }
         }
 
         /* API: int sws_scale(SwsContext *c, uint8_t *src, int srcStride[], int srcSliceY, int srcSliceH, uint8_t dst[], int dstStride[] )
         */
+        /*
+         * I'm not sure why this is needed, but I'll do it for RGB and YUV img_context
+         */
+        sws_scale(img_ctx, pFrame->data,
+                  pFrame->linesize, 0,
+                  pCodecCtx->height,
+                  pFrameYUV->data, pFrameYUV->linesize);
+
         sws_scale(img_convert_ctx, pFrame->data,
                   pFrame->linesize, 0,
                   pCodecCtx->height,
@@ -502,9 +554,11 @@ int film::process ()
      */
     free (buffer);
     free (buffer2);
-    av_free (pFrameRGB);
     av_free (pFrame);
+    av_free (pFrameRGB);
     av_free (pFrameRGBprev);
+    av_free (pFrameYUV);
+    av_free (pFrameYUVprev);
     avcodec_close (pCodecCtx);
   }
   

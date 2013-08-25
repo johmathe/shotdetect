@@ -88,8 +88,26 @@ private:
   film *f;
   vector < dataframe > data;
 
+  /* Pixel color struct */
+  struct pixel_color {
+    int c1;
+    int c2;
+    int c3;
+  };
+
+  struct pixel_true_color {
+    float c1;
+    float c2;
+    float c3;
+  };
+
+  /* Create variables for storing color values */
+  vector < pixel_color > colors_yuv;
+  vector < pixel_color > colors_rgb;
+  vector < pixel_true_color > colors_hsv;
+
   /* Graph colors */
-  struct graph_color{
+  struct graph_color {
     int background;
     int line;
     int title;
@@ -122,28 +140,39 @@ public:
   ~graph ();
   graph (int x, int y, string filename,int threshold, film *farg);
   graph (int threshold, film *farg);
+
   inline void push_data (int val) {
     dataframe frame;
     frame.global = val;
-    frame.red = 0;
-    frame.blue = 0;
-    frame.green = 0;
-    data.push_back (frame);
-  }
-
-  inline void push_data (int val, int red, int green, int blue) {
-    dataframe frame;
-    frame.global = val;
-    frame.red = red;
-    frame.green = green;
-    frame.blue = blue;
-    rgb_to_hsv(float(red), float(green), float(blue), &(frame.hue), &(frame.saturation), &(frame.value));
     data.push_back (frame);
   }
 
   inline void set_color(graph_color graph_color) {
-    graph_colors.push_back(graph_color);
+    graph_colors.push_back (graph_color);
   }
+
+  inline void push_yuv(int cy, int cu, int cv) {
+    pixel_color yuv_components;
+    yuv_components.c1 = cy;
+    yuv_components.c2 = cu;
+    yuv_components.c3 = cv;
+    colors_yuv.push_back (yuv_components);
+  }
+
+  inline void push_rgb(int red, int green, int blue) {
+    pixel_color rgb_components;
+    rgb_components.c1 = red;
+    rgb_components.c2 = green;
+    rgb_components.c3 = blue;
+    colors_rgb.push_back (rgb_components);
+  }
+
+  inline void push_rgb_to_hsv(int red, int green, int blue) {
+    pixel_true_color hsv_components;
+    rgb_to_hsv(float(red), float(green), float(blue), &(hsv_components.c1), &(hsv_components.c2), &(hsv_components.c3));
+    colors_hsv.push_back (hsv_components);
+  }
+
 };
 
 
