@@ -42,12 +42,14 @@ class film;
 class graph
 {
 
+/* Private properties for class-internal functions */
 private:
 
-  /* Private properties for class-internal functions */
-  gdImagePtr im_colors;
+  /* GD Image pointers */
   gdImagePtr im_motion_qty;
-  gdImagePtr im_hsv;
+  gdImagePtr im_colors_rgb;
+  gdImagePtr im_colors_hsv;
+  gdImagePtr im_colors_yuv;
 
   FILE *pngout;
   string filename_motion_qty;
