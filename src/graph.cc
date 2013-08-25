@@ -45,7 +45,7 @@ graph::MIN (float a, float b, float c)
 graph::graph (int x, int y, string path, int th, film * farg)
 {
   this->f = farg;
-  this->xsize = 600;
+  this->xsize = 600;              // Minimum width of graph image
   this->ysize = y;
   this->xaxis_offset = 250;
   this->xoffset = 10;
@@ -372,15 +372,20 @@ graph::draw_color_datas ()
 {
   int hsv_color;
   float r, g, b;
+  int frame_count;
+  int pos_x, pos_y;
 
   /*
    * Draw color graphs (RGB, HSV)
    */
-  for (int i = 1; i < colors_rgb.size () - 1; i++) {
+  frame_count = data.size();
+  for (int i = 0; i < (frame_count - 1); i++) {
+    pos_x = i + xoffset;
+
     // RGB:
-    gdImageLine (im_colors_rgb, i - 1 + xoffset, (-colors_rgb[i - 1].c1) + xaxis_offset, i + xoffset, (-colors_rgb[i].c1) + xaxis_offset, graph_colors[IM_RGB_COLORS].red);
-    gdImageLine (im_colors_rgb, i - 1 + xoffset, (-colors_rgb[i - 1].c2) + xaxis_offset, i + xoffset, (-colors_rgb[i].c2) + xaxis_offset, graph_colors[IM_RGB_COLORS].green);
-    gdImageLine (im_colors_rgb, i - 1 + xoffset, (-colors_rgb[i - 1].c3) + xaxis_offset, i + xoffset, (-colors_rgb[i].c3) + xaxis_offset, graph_colors[IM_RGB_COLORS].blue);
+    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c1, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c1, graph_colors[IM_RGB_COLORS].red);
+    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c2, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c2, graph_colors[IM_RGB_COLORS].green);
+    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c3, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c3, graph_colors[IM_RGB_COLORS].blue);
 
     // HSV:
     hsv_to_rgb (&r, &g, &b, colors_hsv[i].c1, float (1), float (1));
@@ -388,9 +393,9 @@ graph::draw_color_datas ()
     gdImageLine (im_colors_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-colors_hsv[i].c2) * 255)) +xaxis_offset - 1, hsv_color);
 
     // YUV:
-    gdImageLine (im_colors_yuv, i - 1 + xoffset, (-colors_yuv[i - 1].c1) + xaxis_offset, i + xoffset, (-colors_yuv[i].c1) + xaxis_offset, graph_colors[IM_YUV_COLORS].cy);
-    gdImageLine (im_colors_yuv, i - 1 + xoffset, (-colors_yuv[i - 1].c2) + xaxis_offset, i + xoffset, (-colors_yuv[i].c2) + xaxis_offset, graph_colors[IM_YUV_COLORS].cu);
-    gdImageLine (im_colors_yuv, i - 1 + xoffset, (-colors_yuv[i - 1].c3) + xaxis_offset, i + xoffset, (-colors_yuv[i].c3) + xaxis_offset, graph_colors[IM_YUV_COLORS].cv);
+    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c1, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c1, graph_colors[IM_YUV_COLORS].cy);
+    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c2, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c2, graph_colors[IM_YUV_COLORS].cu);
+    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c3, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c3, graph_colors[IM_YUV_COLORS].cv);
   }
 
 }

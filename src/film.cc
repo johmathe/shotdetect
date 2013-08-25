@@ -95,7 +95,6 @@ void film::get_yuv_colors(AVFrame * pFrame)
 
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-
       c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
       c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
       c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
@@ -129,9 +128,9 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   char c1prev, c2prev, c3prev;
   int score;
   score = 0;
+
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-
       c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
       c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
       c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
@@ -139,9 +138,11 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
       c1prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
       c2prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
       c3prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
+
       c1tot += int (c1 + 127);
       c2tot += int (c2 + 127);
       c3tot += int (c3 + 127);
+
       score += abs ((c1 - c1prev));
       score += abs ((c2 - c2prev));
       score += abs ((c3 - c3prev));
@@ -167,10 +168,13 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
    * Store gathered data
    */
   g->push_data (score);
-  g->push_rgb(c1tot, c2tot, c3tot);
-  g->push_rgb_to_hsv(c1tot, c2tot, c3tot);
+  g->push_rgb (c1tot, c2tot, c3tot);
+  g->push_rgb_to_hsv (c1tot, c2tot, c3tot);
 
-  if (diff > this->threshold && score > this->threshold) {
+  /*
+   * Take care of storing frame position and images of detecte scene cut
+   */
+  if ((diff > this->threshold) && (score > this->threshold)) {
     shot s;
     s.fbegin = frame_number;
     s.msbegin = int ((frame_number * 1000) / fps);
@@ -364,6 +368,7 @@ int film::process ()
 
   }
   update_metadata ();
+
   /*
    * Find the decoder for the video stream
    */
@@ -475,15 +480,6 @@ int film::process ()
                   pCodecCtx->height,
                   pFrameRGB->data, pFrameRGB->linesize);
 
-        /*
-           Old API doc (cf http://www.dranger.com/ffmpeg/functions.html )
-           int img_convert(AVPicture *dst, int dst_pix_fmt,
-           const AVPicture *src, int src_pix_fmt,
-           int src_width, int src_height)
-           */
-        /*
-           img_convert ((AVPicture *) pFrameRGB, PIX_FMT_RGB24, (AVPicture *) pFrame, pCodecCtx->pix_fmt, width, height);
-           */
 
         /* Extract pixel color information  */
         get_yuv_colors(pFrameYUV);
