@@ -82,12 +82,16 @@ void film::create_main_dir()
   }
 }
 
-void film::get_yuv_colors(AVFrame * pFrame, AVFrame * pFramePrev)
+void film::get_yuv_colors(AVFrame * pFrame)
 {
   int x;
   int y;
   char c1, c2, c3;
   int c1tot, c2tot, c3tot;
+
+  c1tot = 0;
+  c2tot = 0;
+  c3tot = 0;
 
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
@@ -381,7 +385,6 @@ int film::process ()
     pFrameRGBprev = avcodec_alloc_frame (); // previous frame
     // YUV:
     pFrameYUV = avcodec_alloc_frame ();     // current frame
-    pFrameYUVprev = avcodec_alloc_frame (); // previous frame
     
 
     /*
@@ -400,7 +403,6 @@ int film::process ()
     avpicture_fill ((AVPicture *) pFrameRGBprev, buffer2, PIX_FMT_RGB24, width, height);
     // YUV:
     avpicture_fill ((AVPicture *) pFrameYUV, buffer, PIX_FMT_YUV444P, width, height);
-    avpicture_fill ((AVPicture *) pFrameYUVprev, buffer2, PIX_FMT_YUV444P, width, height);
 
 
     /*
@@ -436,8 +438,7 @@ int film::process ()
       if (frameFinished) {
         frame_number = pCodecCtx->frame_number; // Current frame number
 
-        // Extract YUV values
-        // TODO
+        // Convert the image into YUV444
         if (! img_ctx) {
           img_ctx = sws_getContext(width, height, pCodecCtx->pix_fmt,
                                            width, height, PIX_FMT_YUV444P, SWS_BICUBIC,
@@ -483,6 +484,9 @@ int film::process ()
         /*
            img_convert ((AVPicture *) pFrameRGB, PIX_FMT_RGB24, (AVPicture *) pFrame, pCodecCtx->pix_fmt, width, height);
            */
+
+        /* Extract pixel color information  */
+        get_yuv_colors(pFrameYUV);
 
         /* If it's not the first image */
         if ( frame_number != 1) {
@@ -558,7 +562,6 @@ int film::process ()
     av_free (pFrameRGB);
     av_free (pFrameRGBprev);
     av_free (pFrameYUV);
-    av_free (pFrameYUVprev);
     avcodec_close (pCodecCtx);
   }
   

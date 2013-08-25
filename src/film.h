@@ -93,7 +93,6 @@ private:
   AVFrame *pFrameRGBprev;
   // - YUV:
   AVFrame *pFrameYUV;
-  AVFrame *pFrameYUVprev;
 
   AVPacket packet;
 
@@ -119,7 +118,7 @@ private:
   int samplearg;
 
   void do_stats (int frame);
-  void get_yuv_colors(AVFrame * pFrame, AVFrame * pFramePrev);
+  void get_yuv_colors(AVFrame * pFrame);
   void CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev);
   graph *g;
 

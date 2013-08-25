@@ -19,10 +19,14 @@
 #define PNG 2
 #define BMP 3
 
+/* Index image colors */
 #define IM_CANVAS 0
 #define IM_MOTION_QTY 1
 #define IM_RGB_COLORS 2
 #define IM_HSV_COLORS 3
+#define IM_YUV_COLORS 4
+/* True color values */
+#define IM_CANVAS_TRUE (IM_CANVAS + 0x9)
 
 
 using namespace std;
@@ -53,8 +57,10 @@ private:
 
   FILE *pngout;
   string filename_motion_qty;
-  string filename_colors;
+  string filename_rgb;
   string filename_hsv;
+  string filename_yuv;
+
   string global_path;
   int size;
   string xtitle;
@@ -82,8 +88,9 @@ private:
   int ptr;
   /* Graph file handles */
   FILE *fdmotion_qty;
-  FILE *fdgraph_colors;
+  FILE *fdgraph_rgb;
   FILE *fdgraph_hsv;
+  FILE *fdgraph_yuv;
   /* XML file handles */
   FILE *fd_xml;
 
@@ -115,15 +122,16 @@ private:
     int title;
     int legend;
     int grid;
-    int red;
-    int green;
-    int blue;
+    int red, green, blue;   // RGB
+    int cy, cu, cv;         // YUV
+
     int threshold;
     int timecode;
+    bool true_color;
   };
   vector < graph_color > graph_colors;
 
-  void draw_canvas (gdImagePtr im, string title);
+  void draw_canvas (gdImagePtr im, string title, graph_color colorset);
   float MAX(float a, float b, float c);
   float MIN(float a, float b, float c);
 
@@ -149,7 +157,7 @@ public:
     data.push_back (frame);
   }
 
-  inline void set_color(graph_color graph_color) {
+  inline void add_colorset(graph_color graph_color) {
     graph_colors.push_back (graph_color);
   }
 
