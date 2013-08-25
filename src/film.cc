@@ -292,10 +292,7 @@ void film::shotlog (string message)
 int film::process ()
 {
   int audioSize;
-  uint8_t *buffer;
-  uint8_t *buffer2;
   int frameFinished;
-  int numBytes;
   shot s;
   static struct SwsContext *img_convert_ctx = NULL;
   static struct SwsContext *img_ctx = NULL;
@@ -391,23 +388,14 @@ int film::process ()
     // YUV:
     pFrameYUV = avcodec_alloc_frame ();     // current frame
     
-
     /*
-     * Determine required buffer size and allocate buffer
-     */
-    numBytes = avpicture_get_size (PIX_FMT_RGB24, width, height);
-
-    buffer = (uint8_t *) malloc (sizeof (uint8_t) * numBytes);
-    buffer2 = (uint8_t *) malloc (sizeof (uint8_t) * numBytes);
-
-    /*
-     * Assign appropriate parts of buffer to image planes
+     * Allocate memory for the pixels of a picture and setup the AVPicture fields for it
      */
     // RGB:
-    avpicture_fill ((AVPicture *) pFrameRGB, buffer, PIX_FMT_RGB24, width, height);
-    avpicture_fill ((AVPicture *) pFrameRGBprev, buffer2, PIX_FMT_RGB24, width, height);
+    avpicture_alloc ((AVPicture *) pFrameRGB, PIX_FMT_RGB24, width, height);
+    avpicture_alloc ((AVPicture *) pFrameRGBprev, PIX_FMT_RGB24, width, height);
     // YUV:
-    avpicture_fill ((AVPicture *) pFrameYUV, buffer, PIX_FMT_YUV444P, width, height);
+    avpicture_alloc ((AVPicture *) pFrameYUV, PIX_FMT_YUV444P, width, height);
 
 
     /*
@@ -504,7 +492,9 @@ int film::process ()
             shots.back ().img_begin = begin_i;
           }
         }
-        memcpy (buffer2, buffer, numBytes);
+        /* Copy current frame as "previous" for next round */
+        av_picture_copy ((AVPicture *) pFrameRGBprev, (AVPicture *) pFrameRGB, PIX_FMT_RGB24, width, height);
+
         if (display)
           do_stats (pCodecCtx->frame_number);
       }
@@ -552,8 +542,6 @@ int film::process ()
     /*
      * Free the RGB images
      */
-    free (buffer);
-    free (buffer2);
     av_free (pFrame);
     av_free (pFrameRGB);
     av_free (pFrameRGBprev);
