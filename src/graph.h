@@ -119,7 +119,6 @@ public:
   void hsv_to_rgb( float *r, float *g, float *b,const float h,const float s,const float v );
   void set_color (int, int, int);
   void write_xml(string filename);
-  void set_title (string);
   ~graph ();
   graph (int x, int y, string filename,int threshold, film *farg);
   graph (int threshold, film *farg);

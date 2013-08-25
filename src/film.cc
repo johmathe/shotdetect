@@ -258,12 +258,10 @@ int film::process ()
   static struct SwsContext *img_convert_ctx = NULL;
   int frame_number;
 
-  printf("film::process()\n"); //DELME
   create_main_dir ();
 
   string graphpath = this->global_path + "/" + this->alphaid;
   g = new graph (600, 400, graphpath, threshold, this);
-  g->set_title ("Quantité de mouvement en fonction de la frame");
 
   /*
    * Register all formats and codecs
@@ -346,6 +344,9 @@ int film::process ()
     // RGB:
     pFrameRGB = avcodec_alloc_frame ();     // current frame
     pFrameRGBprev = avcodec_alloc_frame (); // previous frame
+    // YUV:
+    pFrameYUV = avcodec_alloc_frame ();     // current frame
+    pFrameYUVprev = avcodec_alloc_frame (); // previous frame
     
 
     /*
@@ -362,6 +363,9 @@ int film::process ()
     // RGB:
     avpicture_fill ((AVPicture *) pFrameRGB, buffer, PIX_FMT_RGB24, width, height);
     avpicture_fill ((AVPicture *) pFrameRGBprev, buffer2, PIX_FMT_RGB24, width, height);
+    // YUV:
+    avpicture_fill ((AVPicture *) pFrameYUV, buffer, PIX_FMT_YUV444P, width, height);
+    avpicture_fill ((AVPicture *) pFrameYUVprev, buffer2, PIX_FMT_YUV444P, width, height);
 
 
     /*
@@ -638,7 +642,6 @@ film::film (DialogShotDetect * d)
 
 film::film()
 {
-  printf("film::constructor\n"); //DELME
   // Initialization of default values (non GUI)
   display = 0;
   threshold = DEFAULT_THRESHOLD;

@@ -86,10 +86,15 @@ private:
   AVCodecContext *pCodecCtxAudio;
   AVCodec *pCodec;
   AVCodec *pCodecAudio;
-  // Image information per frame:
+  // Image information for the current and previous frame:
   AVFrame *pFrame;
+  // - RGB:
   AVFrame *pFrameRGB;
   AVFrame *pFrameRGBprev;
+  // - YUV:
+  AVFrame *pFrameYUV;
+  AVFrame *pFrameYUVprev;
+
   AVPacket packet;
 
   FILE *fd_xml_audio;
