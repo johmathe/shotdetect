@@ -118,7 +118,7 @@ private:
   int samplearg;
 
   void do_stats (int frame);
-  void get_yuv_colors(AVFrame * pFrame);
+  void get_yuv_colors(AVFrame& pFrame);
   void CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev);
   graph *g;
 

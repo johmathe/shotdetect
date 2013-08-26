@@ -82,11 +82,11 @@ void film::create_main_dir()
   }
 }
 
-void film::get_yuv_colors(AVFrame * pFrame)
+void film::get_yuv_colors(AVFrame& pFrame)
 {
   int x;
   int y;
-  char c1, c2, c3;
+  int c1, c2, c3;
   int c1tot, c2tot, c3tot;
 
   c1tot = 0;
@@ -95,13 +95,13 @@ void film::get_yuv_colors(AVFrame * pFrame)
 
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-      c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
-      c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
-      c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
+      c1 = pFrame.data[0][pFrame.linesize[0] * y + x];    // Y
+      c2 = pFrame.data[1][pFrame.linesize[0] * y + x];    // Cb
+      c3 = pFrame.data[2][pFrame.linesize[0] * y + x];    // Cr
 
-      c1tot += int (c1 + 127);
-      c2tot += int (c2 + 127);
-      c3tot += int (c3 + 127);
+      c1tot += int (c1);
+      c2tot += int (c2);
+      c3tot += int (c3);
     }
   }
 
@@ -453,24 +453,26 @@ int film::process ()
           }
         }
 
-        /* API: int sws_scale(SwsContext *c, uint8_t *src, int srcStride[], int srcSliceY, int srcSliceH, uint8_t dst[], int dstStride[] )
+        /* 
+         * Calling "sws_scale" is used to copy the data from "pFrame->data" to other
+         * frame buffers for later processing. It is also used to convert between
+         * different pix_fmts.
+         *
+         * API: int sws_scale(SwsContext *c, uint8_t *src, int srcStride[], int srcSliceY, int srcSliceH, uint8_t dst[], int dstStride[] )
         */
-        /*
-         * I'm not sure why this is needed, but I'll do it for RGB and YUV img_context
-         */
-        sws_scale(img_ctx, pFrame->data,
-                  pFrame->linesize, 0,
-                  pCodecCtx->height,
-                  pFrameYUV->data, pFrameYUV->linesize);
-
         sws_scale(img_convert_ctx, pFrame->data,
                   pFrame->linesize, 0,
                   pCodecCtx->height,
                   pFrameRGB->data, pFrameRGB->linesize);
 
+        sws_scale(img_ctx, pFrame->data,
+                  pFrame->linesize, 0,
+                  pCodecCtx->height,
+                  pFrameYUV->data, pFrameYUV->linesize);
+
 
         /* Extract pixel color information  */
-        get_yuv_colors(pFrameYUV);
+        get_yuv_colors(*pFrameYUV);
 
         /* If it's not the first image */
         if ( frame_number != 1) {

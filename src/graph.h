@@ -122,11 +122,19 @@ private:
     int title;
     int legend;
     int grid;
-    int red, green, blue;   // RGB
-    int cy, cu, cv;         // YUV
+    int video_end;          // The end of the video
+    
+    // RGB:
+    int red, green, blue;
+
+    // YUV:
+    int cy, cu, cv;
+    int bt601white;         // ITU-R recommendation BT.601: threshold for white
+    int bt601black;         // ITU-R recommendation BT.601: threshold for black
 
     int threshold;
     int timecode;
+
     bool true_color;
   };
   vector < graph_color > graph_colors;
