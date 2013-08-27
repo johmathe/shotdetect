@@ -46,7 +46,7 @@ extern "C" {
 
 #define DEFAULT_BDD_PORT 5432
 #define DEFAULT_THUMB_HEIGHT 85
-#define DEFAULT_THRESHOLD 60
+#define DEFAULT_THRESHOLD 75
 
 #define RATIO 327
 #define MIN_INT -32768
@@ -86,9 +86,14 @@ private:
   AVCodecContext *pCodecCtxAudio;
   AVCodec *pCodec;
   AVCodec *pCodecAudio;
+  // Image information for the current and previous frame:
   AVFrame *pFrame;
+  // - RGB:
   AVFrame *pFrameRGB;
   AVFrame *pFrameRGBprev;
+  // - YUV:
+  AVFrame *pFrameYUV;
+
   AVPacket packet;
 
   FILE *fd_xml_audio;
@@ -113,6 +118,7 @@ private:
   int samplearg;
 
   void do_stats (int frame);
+  void get_yuv_colors(AVFrame& pFrame);
   void CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev);
   graph *g;
 
@@ -179,6 +185,8 @@ public:
   string code_lang;
   /* Processing threshold */
   int threshold;
+  /* Embed timecode */
+  bool show_timecode;
   /* Alphanumeric ID */
   string alphaid;
   /* Absolute path */
@@ -187,6 +195,11 @@ public:
   double percent;
   /* Showing state started */
   bool show_started;
+  /* Draw graphs: */
+  bool draw_rgb_graph;
+  bool draw_hsv_graph;
+  bool draw_yuv_graph;
+
   xml *x;
   bool display;
 
@@ -224,7 +237,10 @@ public:
     this->input_path = input_file;
   };
   inline void set_threshold(int threshold) {
-    this->threshold=threshold;
+    this->threshold = threshold;
+  };
+  inline void set_show_timecode(bool val) {
+    this->show_timecode = val;
   };
   inline void set_ipath(string path) {
     this->input_path = path;
@@ -240,6 +256,16 @@ public:
   };
   inline void set_title(string title) {
     this->title = title;
+  };
+
+  inline void set_draw_rgb_graph(bool val) {
+    this->draw_rgb_graph = val;
+  };
+  inline void set_draw_hsv_graph(bool val) {
+    this->draw_hsv_graph = val;
+  };
+  inline void set_draw_yuv_graph(bool val) {
+    this->draw_yuv_graph = val;
   };
 
   inline bool get_first_img(void) {

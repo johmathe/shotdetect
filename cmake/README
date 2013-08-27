@@ -1,0 +1,11 @@
+Information about used CMake modules and their sources:
+
+*) GetGitRevisionDescription.cmake
+    Revision:   edf459d9f60dd161b973106881f34caa416cd101
+    Source:     https://github.com/rpavlik/cmake-modules
+
+*) GetGitRevisionDescription.cmake.in
+    Revision:   de68fc045649f88c00c1d6c350085b2dfcf5d041
+    Source:     https://github.com/rpavlik/cmake-modules
+
+
