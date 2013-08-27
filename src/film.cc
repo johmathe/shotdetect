@@ -120,32 +120,36 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   int y;
   int diff;
   int frame_number = pCodecCtx->frame_number;
-  char c1, c2, c3;
+  int c1, c2, c3;
   int c1tot, c2tot, c3tot;
   c1tot = 0;
   c2tot = 0;
   c3tot = 0;
-  char c1prev, c2prev, c3prev;
+  int c1prev, c2prev, c3prev;
   int score;
   score = 0;
 
+  // IDEA! Split image in slices and calculate score per-slice.
+  // This would allow to detect areas on the image which have stayed 
+  // the same, and (a) increase score if all areas have changed 
+  // and (b) decrease score if some areas have changed less (ot not at all).
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-      c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
-      c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
-      c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
+      c1 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
+      c2 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
+      c3 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
 
-      c1prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
-      c2prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
-      c3prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
+      c1prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
+      c2prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
+      c3prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
 
-      c1tot += int (c1 + 127);
-      c2tot += int (c2 + 127);
-      c3tot += int (c3 + 127);
+      c1tot += int ((char) c1 + 127);
+      c2tot += int ((char) c2 + 127);
+      c3tot += int ((char) c3 + 127);
 
-      score += abs ((c1 - c1prev));
-      score += abs ((c2 - c2prev));
-      score += abs ((c3 - c3prev));
+      score += abs (c1 - c1prev);
+      score += abs (c2 - c2prev);
+      score += abs (c3 - c3prev);
     }
   }
   int nbpx = (height * width);
