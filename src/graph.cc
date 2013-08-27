@@ -67,19 +67,27 @@ void
 graph::save ()
 {
   gdImagePng (im_motion_qty, fdmotion_qty);
-  gdImagePng (im_colors_rgb, fdgraph_rgb);
-  gdImagePng (im_colors_hsv, fdgraph_hsv);
-  gdImagePng (im_colors_yuv, fdgraph_yuv);
-
   gdImageDestroy (im_motion_qty);
-  gdImageDestroy (im_colors_rgb);
-  gdImageDestroy (im_colors_hsv);
-  gdImageDestroy (im_colors_yuv);
-
   fclose (fdmotion_qty);
-  fclose (fdgraph_rgb);
-  fclose (fdgraph_hsv);
-  fclose (fdgraph_yuv);
+
+  if (this->f->draw_rgb_graph) {
+    gdImagePng (im_colors_rgb, fdgraph_rgb);
+    gdImageDestroy (im_colors_rgb);
+    fclose (fdgraph_rgb);
+  }
+
+  if (this->f->draw_hsv_graph) {
+    gdImagePng (im_colors_hsv, fdgraph_hsv);
+    gdImageDestroy (im_colors_hsv);
+    fclose (fdgraph_hsv);
+  }
+
+  if (this->f->draw_yuv_graph) {
+    gdImagePng (im_colors_yuv, fdgraph_yuv);
+    gdImageDestroy (im_colors_yuv);
+    fclose (fdgraph_yuv);
+  }
+
 }
 
 void
@@ -178,9 +186,9 @@ graph::init_gd ()
   filename_yuv= global_path + "/yuv.png";
 
   fdmotion_qty = fopen (filename_motion_qty.c_str (), "wb");
-  fdgraph_rgb = fopen (filename_rgb.c_str (), "wb");
-  fdgraph_hsv = fopen (filename_hsv.c_str (), "wb");
-  fdgraph_yuv = fopen (filename_yuv.c_str (), "wb");
+  if (this->f->draw_rgb_graph) { fdgraph_rgb = fopen (filename_rgb.c_str (), "wb"); }
+  if (this->f->draw_hsv_graph) { fdgraph_hsv = fopen (filename_hsv.c_str (), "wb"); }
+  if (this->f->draw_yuv_graph) { fdgraph_yuv = fopen (filename_yuv.c_str (), "wb"); }
 }
 
 /*
@@ -190,9 +198,9 @@ void
 graph::draw_all_canvas ()
 {
   draw_canvas (im_motion_qty, "Quantity of movement", graph_colors[IM_MOTION_QTY]);
-  draw_canvas (im_colors_rgb, "RGB colors", graph_colors[IM_RGB_COLORS]);
-  draw_canvas (im_colors_hsv, "HSV colorspace", graph_colors[IM_HSV_COLORS]);
-  draw_canvas (im_colors_yuv, "YCbCr components", graph_colors[IM_YUV_COLORS]);
+  if (this->f->draw_rgb_graph) { draw_canvas (im_colors_rgb, "RGB colors", graph_colors[IM_RGB_COLORS]); }
+  if (this->f->draw_hsv_graph) { draw_canvas (im_colors_hsv, "HSV colorspace", graph_colors[IM_HSV_COLORS]); }
+  if (this->f->draw_yuv_graph) { draw_canvas (im_colors_yuv, "YCbCr components", graph_colors[IM_YUV_COLORS]); }
 }
 
 /*
@@ -395,43 +403,35 @@ graph::draw_color_datas ()
   frame_count = data.size();      // Number of data points to draw
 
   /*
-   * Things drawn here will be BELOW the drawn data
-   */
-  // TODO: move this to draw_canvas()
-  gdImageLine (im_colors_yuv, xoffset + frame_count, yoffset, xoffset + frame_count, yoffset + ysize, graph_colors[IM_YUV_COLORS].video_end); //DELME
-  // Draw ITU-R BT.601 limits for YUV (16, 235)
-  gdImageLine (im_colors_yuv, xoffset + 1, xaxis_offset - 235, pos_x + frame_count, xaxis_offset - 235, graph_colors[IM_YUV_COLORS].bt601white); //DELME
-  gdImageLine (im_colors_yuv, xoffset + 1, xaxis_offset - 16, pos_x + frame_count, xaxis_offset - 16, graph_colors[IM_YUV_COLORS].bt601black); //DELME
-
-
-  /*
    * Draw color graphs (RGB, HSV)
    */
   for (int i = 0; i < (frame_count - 1); i++) {
     pos_x = i + xoffset;
 
     // RGB:
-    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c1, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c1, graph_colors[IM_RGB_COLORS].red);
-    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c2, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c2, graph_colors[IM_RGB_COLORS].green);
-    gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c3, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c3, graph_colors[IM_RGB_COLORS].blue);
+    if (this->f->draw_rgb_graph) {
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c1, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c1, graph_colors[IM_RGB_COLORS].red);
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c2, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c2, graph_colors[IM_RGB_COLORS].green);
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c3, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c3, graph_colors[IM_RGB_COLORS].blue);
+    }
 
     // HSV:
-    hsv_to_rgb (&r, &g, &b, colors_hsv[i].c1, float (1), float (1));
-    hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));  // Set the drawing color RGB values according to "hsv_to_rgb()"
-    gdImageLine (im_colors_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-colors_hsv[i].c2) * 255)) +xaxis_offset - 1, hsv_color);
+    if (this->f->draw_hsv_graph) {
+      hsv_to_rgb (&r, &g, &b, colors_hsv[i].c1, float (1), float (1));
+      hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));  // Set the drawing color RGB values according to "hsv_to_rgb()"
+      gdImageLine (im_colors_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-colors_hsv[i].c2) * 255)) +xaxis_offset - 1, hsv_color);
+    }
 
     // YUV:
-    printf("YUV: %d, %d, %d\n", colors_yuv[i].c1, colors_yuv[i].c2, colors_yuv[i].c3); //DELME
-    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c1, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c1, graph_colors[IM_YUV_COLORS].cy);
-    gdImageSetStyle (im_colors_yuv, style_cu, sizeof(style_cu));
-    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c2, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c2, gdStyled);
-    gdImageSetStyle (im_colors_yuv, style_cv, sizeof(style_cv));
-    gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c3, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c3, gdStyled);
+    if (this->f->draw_yuv_graph) {
+      printf("YUV: %d, %d, %d\n", colors_yuv[i].c1, colors_yuv[i].c2, colors_yuv[i].c3); //DELME
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c1, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c1, graph_colors[IM_YUV_COLORS].cy);
+      gdImageSetStyle (im_colors_yuv, style_cu, sizeof(style_cu));
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c2, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c2, gdStyled);
+      gdImageSetStyle (im_colors_yuv, style_cv, sizeof(style_cv));
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c3, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c3, gdStyled);
+    }
   }
-
-  /*
-   * Things drawn here will be ON TOP of the previously drawn data
-   */
 
 }
 

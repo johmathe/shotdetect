@@ -87,6 +87,11 @@ main (int argc, char **argv)
   // Initialize threshold to a sensible default value
   f.threshold=DEFAULT_THRESHOLD;
 
+  // Set default settings:
+  f.set_draw_rgb_graph  (true);
+  f.set_draw_hsv_graph  (true);
+  f.set_draw_yuv_graph  (false);        // YUV graph is still disabled, until it works.
+
   for (;;) {
     int c = getopt (argc, argv, "?ht:y:i:o:a:x:s:flwvmrc");
 

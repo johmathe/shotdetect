@@ -186,7 +186,7 @@ public:
   /* Processing threshold */
   int threshold;
   /* Embed timecode */
-  int show_timecode;
+  bool show_timecode;
   /* Alphanumeric ID */
   string alphaid;
   /* Absolute path */
@@ -195,6 +195,11 @@ public:
   double percent;
   /* Showing state started */
   bool show_started;
+  /* Draw graphs: */
+  bool draw_rgb_graph;
+  bool draw_hsv_graph;
+  bool draw_yuv_graph;
+
   xml *x;
   bool display;
 
@@ -251,6 +256,16 @@ public:
   };
   inline void set_title(string title) {
     this->title = title;
+  };
+
+  inline void set_draw_rgb_graph(bool val) {
+    this->draw_rgb_graph = val;
+  };
+  inline void set_draw_hsv_graph(bool val) {
+    this->draw_hsv_graph = val;
+  };
+  inline void set_draw_yuv_graph(bool val) {
+    this->draw_yuv_graph = val;
   };
 
   inline bool get_first_img(void) {
