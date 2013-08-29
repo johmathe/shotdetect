@@ -82,36 +82,74 @@ void film::create_main_dir()
   }
 }
 
+void film::get_yuv_colors(AVFrame& pFrame)
+{
+  int x;
+  int y;
+  int c1, c2, c3;
+  int c1tot, c2tot, c3tot;
+
+  c1tot = 0;
+  c2tot = 0;
+  c3tot = 0;
+
+  for (y = 0; y < height; y++) {
+    for (x = 0; x < width; x++) {
+      c1 = pFrame.data[0][pFrame.linesize[0] * y + x];    // Y
+      c2 = pFrame.data[1][pFrame.linesize[0] * y + x];    // Cb
+      c3 = pFrame.data[2][pFrame.linesize[0] * y + x];    // Cr
+
+      c1tot += int (c1);
+      c2tot += int (c2);
+      c3tot += int (c3);
+    }
+  }
+
+  g->push_yuv(c1, c2, c3);
+}
+
+/*
+ * This function gathers the RGB values per frame and evaluates the
+ * possibility if this frame is a detected shot.
+ * If a shot is detected, this function also creates the image files
+ * for this scene cut.
+ */
 void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
 {
-  int y;
   int x;
+  int y;
   int diff;
   int frame_number = pCodecCtx->frame_number;
-  char c1, c2, c3;
+  int c1, c2, c3;
   int c1tot, c2tot, c3tot;
   c1tot = 0;
   c2tot = 0;
   c3tot = 0;
-  char c1prev, c2prev, c3prev;
+  int c1prev, c2prev, c3prev;
   int score;
   score = 0;
+
+  // IDEA! Split image in slices and calculate score per-slice.
+  // This would allow to detect areas on the image which have stayed 
+  // the same, and (a) increase score if all areas have changed 
+  // and (b) decrease score if some areas have changed less (ot not at all).
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
+      c1 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
+      c2 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
+      c3 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
 
-      c1 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
-      c2 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
-      c3 = (char) *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
+      c1prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
+      c2prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
+      c3prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
 
-      c1prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
-      c2prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
-      c3prev = (char) *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
-      c1tot += int (c1 + 127);
-      c2tot += int (c2 + 127);
-      c3tot += int (c3 + 127);
-      score += abs ((c1 - c1prev));
-      score += abs ((c2 - c2prev));
-      score += abs ((c3 - c3prev));
+      c1tot += int ((char) c1 + 127);
+      c2tot += int ((char) c2 + 127);
+      c3tot += int ((char) c3 + 127);
+
+      score += abs (c1 - c1prev);
+      score += abs (c2 - c2prev);
+      score += abs (c3 - c3prev);
     }
   }
   int nbpx = (height * width);
@@ -125,14 +163,22 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   c3tot /= nbpx;
 
   /*
-   * Derivee numerique
+   * Calculate numerical difference between this and the previous frame
    */
   diff = abs (score - prev_score);
   prev_score = score;
 
-  g->push_data (score, c1tot, c2tot, c3tot);
+  /*
+   * Store gathered data
+   */
+  g->push_data (score);
+  g->push_rgb (c1tot, c2tot, c3tot);
+  g->push_rgb_to_hsv (c1tot, c2tot, c3tot);
 
-  if (diff > this->threshold && score > this->threshold) {
+  /*
+   * Take care of storing frame position and images of detecte scene cut
+   */
+  if ((diff > this->threshold) && (score > this->threshold)) {
     shot s;
     s.fbegin = frame_number;
     s.msbegin = int ((frame_number * 1000) / fps);
@@ -250,19 +296,16 @@ void film::shotlog (string message)
 int film::process ()
 {
   int audioSize;
-  uint8_t *buffer;
-  uint8_t *buffer2;
   int frameFinished;
-  int numBytes;
   shot s;
   static struct SwsContext *img_convert_ctx = NULL;
+  static struct SwsContext *img_ctx = NULL;
   int frame_number;
 
   create_main_dir ();
 
   string graphpath = this->global_path + "/" + this->alphaid;
   g = new graph (600, 400, graphpath, threshold, this);
-  g->set_title ("Quantité de mouvement en fonction de la frame");
 
   /*
    * Register all formats and codecs
@@ -326,6 +369,7 @@ int film::process ()
 
   }
   update_metadata ();
+
   /*
    * Find the decoder for the video stream
    */
@@ -339,26 +383,23 @@ int film::process ()
       return -1;		// Could not open codec
 
     /*
-     * Allocate video frame
+     * Allocate current and previous video frames 
      */
     pFrame = avcodec_alloc_frame ();
-    pFrameRGB = avcodec_alloc_frame ();
-    pFrameRGBprev = avcodec_alloc_frame ();
-
+    // RGB:
+    pFrameRGB = avcodec_alloc_frame ();     // current frame
+    pFrameRGBprev = avcodec_alloc_frame (); // previous frame
+    // YUV:
+    pFrameYUV = avcodec_alloc_frame ();     // current frame
+    
     /*
-     * Determine required buffer size and allocate buffer
+     * Allocate memory for the pixels of a picture and setup the AVPicture fields for it
      */
-    numBytes = avpicture_get_size (PIX_FMT_RGB24, width, height);
-
-    buffer = (uint8_t *) malloc (sizeof (uint8_t) * numBytes);
-    buffer2 = (uint8_t *) malloc (sizeof (uint8_t) * numBytes);
-
-    /*
-     * Assign appropriate parts of buffer to image planes in pFrameRGB
-     */
-    avpicture_fill ((AVPicture *) pFrameRGB, buffer, PIX_FMT_RGB24, width, height);
-
-    avpicture_fill ((AVPicture *) pFrameRGBprev, buffer2, PIX_FMT_RGB24, width, height);
+    // RGB:
+    avpicture_alloc ((AVPicture *) pFrameRGB, PIX_FMT_RGB24, width, height);
+    avpicture_alloc ((AVPicture *) pFrameRGBprev, PIX_FMT_RGB24, width, height);
+    // YUV:
+    avpicture_alloc ((AVPicture *) pFrameYUV, PIX_FMT_YUV444P, width, height);
 
 
     /*
@@ -368,8 +409,6 @@ int film::process ()
     s.msbegin = 0;
     s.myid = 0;
     shots.push_back (s);
-
-
 
   }
 
@@ -391,11 +430,21 @@ int film::process ()
    */
   while (av_read_frame (pFormatCtx, &packet) >= 0) {
     if (packet.stream_index == videoStream) {
-      // DEPRECATED: avcodec_decode_video (pCodecCtx, pFrame, &frameFinished, packet.data, packet.size);
       avcodec_decode_video2 (pCodecCtx, pFrame, &frameFinished, &packet);
 
       if (frameFinished) {
         frame_number = pCodecCtx->frame_number; // Current frame number
+
+        // Convert the image into YUV444
+        if (! img_ctx) {
+          img_ctx = sws_getContext(width, height, pCodecCtx->pix_fmt,
+                                           width, height, PIX_FMT_YUV444P, SWS_BICUBIC,
+                                           NULL, NULL, NULL);
+          if (! img_ctx) {
+            fprintf(stderr, "Cannot initialize the converted YUV image context!\n");
+            exit(1);
+          }
+        }
 
         // Convert the image into RGB24
         if (! img_convert_ctx) {
@@ -403,27 +452,31 @@ int film::process ()
                                            width, height, PIX_FMT_RGB24, SWS_BICUBIC,
                                            NULL, NULL, NULL);
           if (! img_convert_ctx) {
-            fprintf(stderr, "Cannot initialize the conversion context!\n");
+            fprintf(stderr, "Cannot initialize the converted RGB image context!\n");
             exit(1);
           }
         }
 
-        /* API: int sws_scale(SwsContext *c, uint8_t *src, int srcStride[], int srcSliceY, int srcSliceH, uint8_t dst[], int dstStride[] )
+        /* 
+         * Calling "sws_scale" is used to copy the data from "pFrame->data" to other
+         * frame buffers for later processing. It is also used to convert between
+         * different pix_fmts.
+         *
+         * API: int sws_scale(SwsContext *c, uint8_t *src, int srcStride[], int srcSliceY, int srcSliceH, uint8_t dst[], int dstStride[] )
         */
         sws_scale(img_convert_ctx, pFrame->data,
                   pFrame->linesize, 0,
                   pCodecCtx->height,
                   pFrameRGB->data, pFrameRGB->linesize);
 
-        /*
-           Old API doc (cf http://www.dranger.com/ffmpeg/functions.html )
-           int img_convert(AVPicture *dst, int dst_pix_fmt,
-           const AVPicture *src, int src_pix_fmt,
-           int src_width, int src_height)
-           */
-        /*
-           img_convert ((AVPicture *) pFrameRGB, PIX_FMT_RGB24, (AVPicture *) pFrame, pCodecCtx->pix_fmt, width, height);
-           */
+        sws_scale(img_ctx, pFrame->data,
+                  pFrame->linesize, 0,
+                  pCodecCtx->height,
+                  pFrameYUV->data, pFrameYUV->linesize);
+
+
+        /* Extract pixel color information  */
+        get_yuv_colors(*pFrameYUV);
 
         /* If it's not the first image */
         if ( frame_number != 1) {
@@ -445,7 +498,9 @@ int film::process ()
             shots.back ().img_begin = begin_i;
           }
         }
-        memcpy (buffer2, buffer, numBytes);
+        /* Copy current frame as "previous" for next round */
+        av_picture_copy ((AVPicture *) pFrameRGBprev, (AVPicture *) pFrameRGB, PIX_FMT_RGB24, width, height);
+
         if (display)
           do_stats (pCodecCtx->frame_number);
       }
@@ -493,11 +548,10 @@ int film::process ()
     /*
      * Free the RGB images
      */
-    free (buffer);
-    free (buffer2);
-    av_free (pFrameRGB);
     av_free (pFrame);
+    av_free (pFrameRGB);
     av_free (pFrameRGBprev);
+    av_free (pFrameYUV);
     avcodec_close (pCodecCtx);
   }
   

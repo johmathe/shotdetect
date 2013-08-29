@@ -45,7 +45,7 @@ graph::MIN (float a, float b, float c)
 graph::graph (int x, int y, string path, int th, film * farg)
 {
   this->f = farg;
-  this->xsize = 600;
+  this->xsize = 600;              // Minimum width of graph image
   this->ysize = y;
   this->xaxis_offset = 250;
   this->xoffset = 10;
@@ -66,148 +66,169 @@ graph::~graph ()
 void
 graph::save ()
 {
-  gdImagePng (im_colors, fdgraph_colors);
   gdImagePng (im_motion_qty, fdmotion_qty);
-  gdImagePng (im_hsv, fdgraph_hsv);
   gdImageDestroy (im_motion_qty);
-  gdImageDestroy (im_colors);
-  gdImageDestroy (im_hsv);
-  fclose (fdgraph_hsv);
-  fclose (fdgraph_colors);
   fclose (fdmotion_qty);
+
+  if (this->f->draw_rgb_graph) {
+    gdImagePng (im_colors_rgb, fdgraph_rgb);
+    gdImageDestroy (im_colors_rgb);
+    fclose (fdgraph_rgb);
+  }
+
+  if (this->f->draw_hsv_graph) {
+    gdImagePng (im_colors_hsv, fdgraph_hsv);
+    gdImageDestroy (im_colors_hsv);
+    fclose (fdgraph_hsv);
+  }
+
+  if (this->f->draw_yuv_graph) {
+    gdImagePng (im_colors_yuv, fdgraph_yuv);
+    gdImageDestroy (im_colors_yuv);
+    fclose (fdgraph_yuv);
+  }
+
 }
 
 void
 graph::init_gd ()
 {
+  graph_color canvas_graph_colors;
+  graph_color motion_qty_graph_colors;
+  graph_color rgb_graph_colors;
+  graph_color hsv_graph_colors;
+  graph_color yuv_graph_colors;
 
+  /*
+   * Graph's X-width (xsize) is width of video frame + 20 (for grid)
+   */
   if (data.size () > xsize) {
     xsize = data.size () + 20;
   }
 
   /*
    * Create image buffers
+   *   Motion quantity graph: indexed colors
+   *   RGB color graph: indexed colors
+   *   HSV graph: true color
    */
-  im_colors = gdImageCreate (xsize, ysize);
-  im_hsv = gdImageCreateTrueColor (xsize, ysize);
   im_motion_qty = gdImageCreate (xsize, ysize);
+  im_colors_rgb = gdImageCreate (xsize, ysize);
+  im_colors_hsv = gdImageCreateTrueColor (xsize, ysize);
+  im_colors_yuv = gdImageCreate (xsize, ysize);
 
   /*
-   * Declare color indexes
+   * Declare color indexes used for all images
+   * NOTE: This is currently not used, but necessary to keep the vector indexes
+   *       in line with their static numbers.
    */
-  background_color = gdImageColorAllocate (im_motion_qty, 255, 255, 255);
-  line_color = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
-  title_color = gdImageColorAllocate (im_motion_qty, 255, 255, 0);
-  grid_color = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
-  threshold_color = gdImageColorAllocate (im_motion_qty, 255, 0, 0);
-
+  add_colorset(canvas_graph_colors);  // Add colorset. Index=0
 
   /*
-   * Declare color indexes for the color graph
+   * Declare color indexes for motion quantity graph
    */
-  background_color = gdImageColorAllocate (im_colors, 255, 255, 255);
-  line_color = gdImageColorAllocate (im_colors, 0, 0, 0);
-  title_color = gdImageColorAllocate (im_colors, 255, 255, 0);
-  grid_color = gdImageColorAllocate (im_colors, 0, 0, 0);
-  red_color = gdImageColorAllocate (im_colors, 255, 0, 0);
-  green_color = gdImageColorAllocate (im_colors, 0, 255, 0);
-  blue_color = gdImageColorAllocate (im_colors, 0, 0, 255);
+  motion_qty_graph_colors.background = gdImageColorAllocate (im_motion_qty, 255, 255, 255);
+  motion_qty_graph_colors.line = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  motion_qty_graph_colors.title = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  motion_qty_graph_colors.grid = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  motion_qty_graph_colors.video_end = gdImageColorAllocate (im_motion_qty, 200, 200, 200);
+  motion_qty_graph_colors.timecode = gdImageColorAllocate (im_motion_qty, 0, 0, 0);
+  motion_qty_graph_colors.threshold = gdImageColorAllocate (im_motion_qty, 255, 0, 0);
+  add_colorset(motion_qty_graph_colors);  // Add colorset. Index=1
+
+  /*
+   * Declare color indexes for the RGB color graph
+   */
+  rgb_graph_colors.background = gdImageColorAllocate (im_colors_rgb, 255, 255, 255);
+  rgb_graph_colors.line = gdImageColorAllocate (im_colors_rgb, 0, 0, 0);
+  rgb_graph_colors.title = gdImageColorAllocate (im_colors_rgb, 0, 0, 0);
+  rgb_graph_colors.grid = gdImageColorAllocate (im_colors_rgb, 0, 0, 0);
+  rgb_graph_colors.video_end = gdImageColorAllocate (im_colors_rgb, 200, 200, 200);
+  rgb_graph_colors.timecode = gdImageColorAllocate (im_colors_rgb, 0, 0, 0);
+  rgb_graph_colors.red = gdImageColorAllocate (im_colors_rgb, 255, 0, 0);
+  rgb_graph_colors.green = gdImageColorAllocate (im_colors_rgb, 0, 255, 0);
+  rgb_graph_colors.blue = gdImageColorAllocate (im_colors_rgb, 0, 0, 255);
+  add_colorset(rgb_graph_colors);  // Add colorset. Index=2
+
+  /*
+   * Declare color indexes for the HSV graph
+   */
+  hsv_graph_colors.background = gdTrueColor (255, 255, 255);
+  hsv_graph_colors.line = gdTrueColor (0, 0, 0);
+  hsv_graph_colors.title = gdTrueColor (0, 0, 0);
+  hsv_graph_colors.grid = gdTrueColor (0, 0, 0);
+  hsv_graph_colors.video_end = gdImageColorAllocate (im_colors_hsv, 200, 200, 200);
+  hsv_graph_colors.timecode = gdTrueColor (0, 0, 0);
+  add_colorset(hsv_graph_colors);  // Add colorset. Index=3
+
+  /*
+   * Declare color indexes for the YUV component graph
+   */
+  yuv_graph_colors.background = gdImageColorAllocate (im_colors_yuv, 255, 255, 255);
+  yuv_graph_colors.line = gdImageColorAllocate (im_colors_yuv, 0, 0, 0);
+  yuv_graph_colors.title = gdImageColorAllocate (im_colors_yuv, 0, 0, 0);
+  yuv_graph_colors.grid = gdImageColorAllocate (im_colors_yuv, 0, 0, 0);
+  yuv_graph_colors.timecode = gdImageColorAllocate (im_colors_yuv, 0, 0, 0);
+  yuv_graph_colors.video_end = gdImageColorAllocate (im_colors_yuv, 200, 200, 200);
+  yuv_graph_colors.cy = gdImageColorAllocate (im_colors_yuv, 127, 127, 127);
+  yuv_graph_colors.cu = gdImageColorAllocate (im_colors_yuv, 0, 0, 255);
+  yuv_graph_colors.cv = gdImageColorAllocate (im_colors_yuv, 255, 0, 0);
+  yuv_graph_colors.bt601white = gdImageColorAllocate (im_colors_yuv, 200, 200, 200);
+  yuv_graph_colors.bt601black = gdImageColorAllocate (im_colors_yuv, 200, 200, 200);
+  add_colorset(yuv_graph_colors);  // Add colorset. Index=4
 
   /*
    * Open file descriptors (POSIX C)
    */
-  filename_colors = global_path + "/colors.png";
   filename_motion_qty = global_path + "/motion_qty.png";
+  filename_rgb = global_path + "/colors.png";
   filename_hsv = global_path + "/hsv.png";
-  fdgraph_hsv = fopen (filename_hsv.c_str (), "wb");
-  fdgraph_colors = fopen (filename_colors.c_str (), "wb");
+  filename_yuv= global_path + "/yuv.png";
+
   fdmotion_qty = fopen (filename_motion_qty.c_str (), "wb");
+  if (this->f->draw_rgb_graph) { fdgraph_rgb = fopen (filename_rgb.c_str (), "wb"); }
+  if (this->f->draw_hsv_graph) { fdgraph_hsv = fopen (filename_hsv.c_str (), "wb"); }
+  if (this->f->draw_yuv_graph) { fdgraph_yuv = fopen (filename_yuv.c_str (), "wb"); }
 }
 
-void
-graph::set_title (string title)
-{
-
-}
-
-
+/*
+* Create canvas for the graphs
+*/
 void
 graph::draw_all_canvas ()
 {
-
-  /*
-   * Create canvas for the graphs
-   */
-  int back_true_color;
-  string str = "RGB colors";
-  draw_canvas (im_colors, str);
-  str = "Quantity of movement";
-  draw_canvas (im_motion_qty, str);
-
-
-  back_true_color = gdTrueColor (255, 255, 255);
-  gdImageFilledRectangle (im_hsv, 0, 0, xsize, ysize, back_true_color);
-
-
-  int grid_true_color = gdTrueColor (0, 0, 0);
-  string title = "HSV colorspace";
-  gdImageString (im_hsv, gdFontGetLarge (), im_hsv->sx / 2 - (title.size () * gdFontGetLarge ()->w / 2), 10, (unsigned char *) title.c_str (), grid_true_color);
-
-  /*
-   * Yaxis
-   */
-  gdImageLine (im_hsv, xoffset, yoffset, xoffset, ysize - yoffset, grid_true_color);
-
-  /*
-   * graduation
-   */
-  for (int i = yoffset; i < ysize - yoffset; i++) {
-    if (!(i % grid_size)) {
-      gdImageLine (im_hsv, xoffset - 2, i, xoffset + 2, i, grid_true_color);
-    }
-
-  }
-
-
-  /*
-   * Xaxis
-   */
-  gdImageLine (im_hsv, xoffset, xaxis_offset, xsize - xoffset, xaxis_offset, grid_color);
-
-  for (int i = xoffset; i < xsize - xoffset; i++) {
-    if (!(i % grid_size)) {
-      gdImageLine (im_hsv, i, xaxis_offset - 2, i, xaxis_offset + 2, grid_color);
-    }
-
-  }
-
-
+  draw_canvas (im_motion_qty, "Quantity of movement", graph_colors[IM_MOTION_QTY]);
+  if (this->f->draw_rgb_graph) { draw_canvas (im_colors_rgb, "RGB colors", graph_colors[IM_RGB_COLORS]); }
+  if (this->f->draw_hsv_graph) { draw_canvas (im_colors_hsv, "HSV colorspace", graph_colors[IM_HSV_COLORS]); }
+  if (this->f->draw_yuv_graph) { draw_canvas (im_colors_yuv, "YCbCr components", graph_colors[IM_YUV_COLORS]); }
 }
 
+/*
+ * Draw common elements on graph canvas (background, grid, title, etc)
+ */
 void
-graph::draw_canvas (gdImagePtr im, string title)
+graph::draw_canvas (gdImagePtr im, string title, graph_color colorset)
 {
   int fps = this->f->get_fps();
   int tick_length;
   bool is_second, is_minute, is_hour;
   int hour, minute, second, frame;
-  char time[10];
+  char timecode[10];
   int frames;
 
-  gdImageString (im, gdFontGetLarge (), im->sx / 2 - (title.size () * gdFontGetLarge ()->w / 2), 10, (unsigned char *) title.c_str (), grid_color);
+  gdImageFilledRectangle (im, 0, 0, xsize, ysize, colorset.background);
+  gdImageString (im, gdFontGetLarge (), im->sx / 2 - (title.size () * gdFontGetLarge ()->w / 2), 10, (unsigned char *) title.c_str (), colorset.title);
+  gdImageLine (im, xoffset, xaxis_offset, xsize - xoffset, xaxis_offset, colorset.grid);       // x-axis
+  gdImageLine (im, xoffset, yoffset, xoffset, ysize - yoffset, colorset.grid);                 // y-axis
 
-  //  Yaxis
-  gdImageLine (im, xoffset, yoffset, xoffset, ysize - yoffset, grid_color);
-
-  // graduation
+  /*
+   * grid ticks
+   */
   for (int i = yoffset; i < ysize - yoffset; i++) {
     if (!(i % grid_size)) {
-      gdImageLine (im, xoffset - 2, i, xoffset + 2, i, grid_color);
+      gdImageLine (im, xoffset - 2, i, xoffset + 2, i, colorset.grid);
     }
   }
-
-  // Xaxis
-  gdImageLine (im, xoffset, xaxis_offset, xsize - xoffset, xaxis_offset, grid_color);
 
   for (int x = xoffset; x < xsize - xoffset; x++) {
     // Calculate video position information:
@@ -232,18 +253,20 @@ graph::draw_canvas (gdImagePtr im, string title)
 
         // Write video position as grid label:
         //printf("%d:%02d:%02d.%02d\n", hour, minute, second, frame);
-        /*sprintf(time, "%d:%02d:%02d.%02d", hour, minute, second, frame);
+        if (this->f->show_timecode == true) {
+        sprintf(timecode, "%d:%02d:%02d.%02d", hour, minute, second, frame);
 
         gdImageString (im,
           gdFontGetLarge(),
-          x - (strlen(time) * gdFontGetLarge()->w / 2),
+          x - (strlen(timecode) * gdFontGetLarge()->w / 2),
           xaxis_offset + 8,
-          (unsigned char *) time,
-          grid_color
-        );*/
+          (unsigned char *) timecode,
+          colorset.timecode
+        );
+        }
       }
       //if (!(i % grid_size)) //CF
-      gdImageLine (im, x, xaxis_offset - 1, x, xaxis_offset + tick_length, grid_color);
+      gdImageLine (im, x, xaxis_offset - 1, x, xaxis_offset + tick_length, colorset.grid);
     }
   }
 }
@@ -255,12 +278,12 @@ graph::draw_datas () {
    * Loop for creation of data axes in the graph images
    */
   for (int i = 1; i < data.size () - 1; i++) {
-    gdImageLine (im_motion_qty, i - 1 + xoffset, (-data[i - 1].global) +xaxis_offset, i + xoffset, (-data[i].global) +xaxis_offset, line_color);
+    gdImageLine (im_motion_qty, i - 1 + xoffset, (-data[i - 1].global) +xaxis_offset, i + xoffset, (-data[i].global) +xaxis_offset, graph_colors[IM_CANVAS].line);
   }
   /*
    * Draw the threshold line
    */
-  gdImageLine (im_motion_qty, xoffset, xaxis_offset - threshold, xsize - xoffset, xaxis_offset - threshold, threshold_color);
+  gdImageLine (im_motion_qty, xoffset, xaxis_offset - threshold, xsize - xoffset, xaxis_offset - threshold, graph_colors[IM_MOTION_QTY].threshold);
 }
 
 
@@ -363,19 +386,52 @@ graph::draw_color_datas ()
 {
   int hsv_color;
   float r, g, b;
+  int frame_count;
+  int pos_x, pos_y;
+
+  int style_cu[2];
+  int style_cv[2];
+
   /*
-   * Mise en place du rouge
+   * Initialize gd line style
    */
-  for (int i = 1; i < data.size () - 1; i++) {
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].red) + xaxis_offset, i + xoffset, (-data[i].red) + xaxis_offset, red_color);
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].green) + xaxis_offset, i + xoffset, (-data[i].green) + xaxis_offset, green_color);
-    gdImageLine (im_colors, i - 1 + xoffset, (-data[i - 1].blue) + xaxis_offset, i + xoffset, (-data[i].blue) + xaxis_offset, blue_color);
-    hsv_to_rgb (&r, &g, &b, data[i].hue, float (1), float (1));
-    hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));
-    gdImageLine (im_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-data[i].saturation) * 255)) +xaxis_offset - 1, hsv_color);
+  style_cu[0] = graph_colors[IM_YUV_COLORS].cu;
+  style_cu[1] = gdTransparent;
+  style_cv[0] = graph_colors[IM_YUV_COLORS].cv;
+  style_cv[1] = gdTransparent;
 
+  frame_count = data.size();      // Number of data points to draw
+
+  /*
+   * Draw color graphs (RGB, HSV)
+   */
+  for (int i = 0; i < (frame_count - 1); i++) {
+    pos_x = i + xoffset;
+
+    // RGB:
+    if (this->f->draw_rgb_graph) {
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c1, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c1, graph_colors[IM_RGB_COLORS].red);
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c2, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c2, graph_colors[IM_RGB_COLORS].green);
+      gdImageLine (im_colors_rgb, pos_x, xaxis_offset - colors_rgb[i].c3, pos_x + 1, xaxis_offset - colors_rgb[i + 1].c3, graph_colors[IM_RGB_COLORS].blue);
+    }
+
+    // HSV:
+    if (this->f->draw_hsv_graph) {
+      hsv_to_rgb (&r, &g, &b, colors_hsv[i].c1, float (1), float (1));
+      hsv_color = gdTrueColor (int (r * 255), int (g * 255), int (b * 255));  // Set the drawing color RGB values according to "hsv_to_rgb()"
+      gdImageLine (im_colors_hsv, i + xoffset, (0) + xaxis_offset - 1, i + xoffset, (int ((-colors_hsv[i].c2) * 255)) +xaxis_offset - 1, hsv_color);
+    }
+
+    // YUV:
+    if (this->f->draw_yuv_graph) {
+      printf("YUV: %d, %d, %d\n", colors_yuv[i].c1, colors_yuv[i].c2, colors_yuv[i].c3); //DELME
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c1, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c1, graph_colors[IM_YUV_COLORS].cy);
+      gdImageSetStyle (im_colors_yuv, style_cu, sizeof(style_cu));
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c2, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c2, gdStyled);
+      gdImageSetStyle (im_colors_yuv, style_cv, sizeof(style_cv));
+      gdImageLine (im_colors_yuv, pos_x, xaxis_offset - colors_yuv[i].c3, pos_x + 1, xaxis_offset - colors_yuv[i + 1].c3, gdStyled);
+    }
   }
-
 
 }
 
@@ -396,14 +452,14 @@ graph::write_xml (string filename)
     float g;
     float b;
 
-    hsv_to_rgb (&r, &g, &b, data[index].hue, float (1), float (1));
+    hsv_to_rgb (&r, &g, &b, colors_hsv[index].c1, float (1), float (1));
 
     fprintf (fd_xml, "<v m=\"%d\" r=\"%d\" g=\"%d\" b=\"%d\" s=\"%d\" />\n",
              data[index].global,
              int (r * 255),
              int (g * 255),
              int (b * 255),
-             int (data[index].saturation * 100)
+             int (colors_hsv[index].c2 * 100)
             );
   }
   fprintf (fd_xml, "</frame>\n</iri>");
