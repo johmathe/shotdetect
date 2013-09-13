@@ -42,21 +42,23 @@ bool ShotApp::OnInit () {
 void show_help (char **argv) {
   printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
           "Usage: %s \n"
-          "-h           : show this help\n"
-          "-n           : commandline mode (disable GUI)\n"
-          "-s threshold : threshold (Default=%d)\n"
-          "-i file      : input file path\n"
-          "-o path      : output path\n"
-          "-y year      : set the year\n"
           "-a id        : id of the movie\n"
-          "-x xsl path  : path of the xsl stylesheet\n"
-          "-w           : generate xml of audio\n"
-          "-v           : generate xml of video infos\n"
+          "-c           : print timecode on x-axis in graph\n"
           "-f           : generate first image for each shot\n"
+          "-h           : show this help\n"
+          "-i file      : input file path\n"
           "-l           : generate last image for each shot\n"
           "-m           : generate the thumbnail image\n"
+          "-n           : command-line mode (disable GUI)\n"
+          "-o path      : output path\n"
           "-r           : generate the images in native resolution\n"
-          "-c           : print timecode on x-axis in graph\n",
+          "-s threshold : threshold (Default=%d)\n"
+          "-t title     : set the title\n"
+          "-T           : embed timecode in graph\n"
+          "-v           : generate xml of video infos\n"
+          "-w           : generate xml of audio\n"
+          "-x xsl path  : path of the xsl stylesheet\n"
+          "-y year      : set the year\n",
           g_APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
@@ -82,7 +84,7 @@ int main (int argc, char **argv) {
   f.threshold=DEFAULT_THRESHOLD;
 
   for (;;) {
-    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmrc");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:fTlwvmrc");
 
     if (c < 0) {
       break;
@@ -130,8 +132,13 @@ int main (int argc, char **argv) {
       f.set_threshold(atoi (optarg));
       break;
 
-      /* Embed timecode in graph  */
+      /* Set the title */
     case 't':
+      f.set_title(optarg);
+      break;
+
+      /* Embed timecode in graph  */
+    case 'T':
       f.set_show_timecode(true);
       break;
 
@@ -145,11 +152,6 @@ int main (int argc, char **argv) {
     case 'x':
       xsl_path = optarg;
       xsl_path_set = true;
-      break;
-
-      /* Set the title */
-    case 't':
-      f.set_title(optarg);
       break;
 
       /* Set the year */
