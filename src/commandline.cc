@@ -210,8 +210,7 @@ main (int argc, char **argv)
 
   f.shotlog("Processing movie.");
   f.process ();
-  string xml_path  = f.global_path;
-  xml_path += "/result.xml";
+  string xml_path  = "result.xml";
   f.x->write_data (xml_path);
   /*string finished_path = f.global_path;
   finished_path += "/finished";
