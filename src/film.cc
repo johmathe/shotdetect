@@ -130,8 +130,8 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   score = 0;
 
   // IDEA! Split image in slices and calculate score per-slice.
-  // This would allow to detect areas on the image which have stayed 
-  // the same, and (a) increase score if all areas have changed 
+  // This would allow to detect areas on the image which have stayed
+  // the same, and (a) increase score if all areas have changed
   // and (b) decrease score if some areas have changed less (ot not at all).
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
@@ -311,7 +311,7 @@ int film::process ()
    * Register all formats and codecs
    */
   av_register_all ();
-  pFormatCtx = avformat_alloc_context ();   
+  pFormatCtx = avformat_alloc_context ();
   if (avformat_open_input (&pFormatCtx, input_path.c_str (), NULL, NULL) != 0) {
     string error_msg = "Could not open file ";
     error_msg += input_path;
@@ -354,7 +354,7 @@ int film::process ()
    */
   if (audioStream != -1) {
     if (audio_set) {
-      
+
       string xml_audio = graphpath + "/" + alphaid + "_audio.xml";
       init_xml (xml_audio);
     }
@@ -383,15 +383,19 @@ int film::process ()
       return -1;		// Could not open codec
 
     /*
-     * Allocate current and previous video frames 
+     * Allocate current and previous video frames
      */
     pFrame = avcodec_alloc_frame ();
     // RGB:
     pFrameRGB = avcodec_alloc_frame ();     // current frame
+    for (int j=0;j<this->interval; j++){
+        tempRGBprev = avcodec_alloc_frame();
+        av_free(tempRGBprev);
+    }
     pFrameRGBprev = avcodec_alloc_frame (); // previous frame
     // YUV:
     pFrameYUV = avcodec_alloc_frame ();     // current frame
-    
+
     /*
      * Allocate memory for the pixels of a picture and setup the AVPicture fields for it
      */
@@ -457,7 +461,7 @@ int film::process ()
           }
         }
 
-        /* 
+        /*
          * Calling "sws_scale" is used to copy the data from "pFrame->data" to other
          * frame buffers for later processing. It is also used to convert between
          * different pix_fmts.
@@ -554,7 +558,7 @@ int film::process ()
     av_free (pFrameYUV);
     avcodec_close (pCodecCtx);
   }
-  
+
   // Close the codec
   if (audioStream != -1) {
     /* Close the XML file */

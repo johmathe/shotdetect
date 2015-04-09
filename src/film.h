@@ -91,6 +91,7 @@ private:
   // - RGB:
   AVFrame *pFrameRGB;
   AVFrame *pFrameRGBprev;
+  AVFrame *tempRGBprev;
   // - YUV:
   AVFrame *pFrameYUV;
 
@@ -200,6 +201,9 @@ public:
   bool draw_hsv_graph;
   bool draw_yuv_graph;
 
+  /* Interval of frames to skip*/
+  int interval;
+
   xml *x;
   bool display;
 
@@ -251,6 +255,9 @@ public:
   inline void set_year(int year) {
     this->year=year;
   };
+  inline void set_interval(int interval) {
+      this->interval=interval;
+  }
   inline void set_alphaid(string alphaid) {
     this->alphaid = alphaid;
   };
