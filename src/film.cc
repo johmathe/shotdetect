@@ -390,7 +390,6 @@ int film::process ()
     pFrameRGB = avcodec_alloc_frame ();     // current frame
     for (int j=0;j<this->interval; j++){
         tempRGBprev = avcodec_alloc_frame();
-        av_free(tempRGBprev);
     }
     pFrameRGBprev = avcodec_alloc_frame (); // previous frame
     // YUV:
