@@ -132,7 +132,7 @@ int main (int argc, char **argv) {
       break;
 
       /* Embed timecode in graph  */
-    case 't':
+    case 'u':
       f.set_show_timecode(true);
       break;
 
@@ -177,7 +177,7 @@ int main (int argc, char **argv) {
 
     /* Compare across this interval */
     case 'z':
-      interval = f.set_interval(optarg);
+      f.set_interval(atoi(optarg));
       break;
 
     default:
