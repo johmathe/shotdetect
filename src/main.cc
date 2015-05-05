@@ -132,7 +132,7 @@ int main (int argc, char **argv) {
       break;
 
       /* Embed timecode in graph  */
-    case 'u':
+    case 'c':
       f.set_show_timecode(true);
       break;
 
