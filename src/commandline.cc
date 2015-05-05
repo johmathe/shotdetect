@@ -173,7 +173,7 @@ main (int argc, char **argv)
       f.set_ipath(optarg);
       if (!f.get_ipath().empty()) {
         ifile_set = true;
-      } 
+      }
       break;
 
       /* Set the output file */
@@ -181,7 +181,7 @@ main (int argc, char **argv)
       f.set_opath(optarg);
       if (!f.get_opath().empty()) {
         ofile_set = true;
-      } 
+      }
       break;
 
 
@@ -211,7 +211,7 @@ main (int argc, char **argv)
   f.shotlog("Processing movie.");
   f.process ();
   string xml_path  = f.global_path;
-  xml_path += "/result.xml";
+  //xml_path += "result.xml";
   f.x->write_data (xml_path);
   /*string finished_path = f.global_path;
   finished_path += "/finished";
