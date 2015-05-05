@@ -57,6 +57,7 @@ void show_help (char **argv) {
           "-m           : generate the thumbnail image\n"
           "-r           : generate the images in native resolution\n"
           "-c           : print timecode on x-axis in graph\n",
+          "-z           : Interval to compare frames across(Default 1)\n",
           g_APP_VERSION,
           argv[0],
           DEFAULT_THRESHOLD
@@ -82,7 +83,7 @@ int main (int argc, char **argv) {
   f.threshold=DEFAULT_THRESHOLD;
 
   for (;;) {
-    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmrc");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmrcz");
 
     if (c < 0) {
       break;
@@ -131,7 +132,7 @@ int main (int argc, char **argv) {
       break;
 
       /* Embed timecode in graph  */
-    case 't':
+    case 'c':
       f.set_show_timecode(true);
       break;
 
@@ -174,6 +175,10 @@ int main (int argc, char **argv) {
       gui = false;
       break;
 
+    /* Compare across this interval */
+    case 'z':
+      f.set_interval(atoi(optarg));
+      break;
 
     default:
       break;
