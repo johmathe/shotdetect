@@ -10,8 +10,6 @@ before_install:
 install:
   - sudo -E $SCRIPTS/travis_install.sh
 
-script: $SCRIPTS/travis_build_and_test.sh
-
 before_script:
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/cuda/lib64
 
