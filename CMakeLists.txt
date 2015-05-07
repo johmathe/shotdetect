@@ -1,8 +1,23 @@
 # CMake integration by Christian Frisson
-
 cmake_minimum_required(VERSION 2.8)
 PROJECT(shotdetect)
+
+SET(CMAKE_C_COMPILER "/usr/bin/clang")
+SET(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+
+# Get git version information for automatic embedding in version string:
+
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+# Take the first 12 characters of the SHA1 as short identifier:
+STRING(SUBSTRING ${GIT_SHA1} 0 11 GIT_SHA1_SHORT)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/version.cc.in" "${CMAKE_CURRENT_BINARY_DIR}/version.cc" @ONLY)
+list(APPEND SOURCES "${CMAKE_CURRENT_BINARY_DIR}/version.cc" src/version.h)
+
+# Miscellaneous compilation options:
+
 OPTION(USE_WXWIDGETS "Compile GUI app with wxWidgets, otherwise commandline app" ON)
 OPTION(USE_POSTGRESQL "Compile with PostgreSQL support" OFF)
 
@@ -169,12 +184,26 @@ ELSEIF(WIN32)
 ENDIF()
 
 IF(USE_WXWIDGETS AND wxWidgets_FOUND)
-	SET(${TARGET_NAME}_GUI_SRCS src/main.cc src/ui/dialog_help.cc src/ui/dialog_shotdetect.cc src/ui/process_video_thread.cc)
-	SET(${TARGET_NAME}_GUI_HDRS src/ui/dialog_help.h src/ui/dialog_shotdetect.h src/ui/process_video_thread.h)
-	ADD_EXECUTABLE(${TARGET_NAME}-gui ${APP_TYPE} ${${TARGET_NAME}_GUI_SRCS} ${${TARGET_NAME}_GUI_HDRS})
+    LIST(APPEND ${TARGET_NAME}_GUI_SRCS src/main.cc src/ui/dialog_help.cc src/ui/dialog_shotdetect.cc src/ui/process_video_thread.cc)
+    LIST(APPEND ${TARGET_NAME}_GUI_HDRS src/ui/dialog_help.h src/ui/dialog_shotdetect.h src/ui/process_video_thread.h)
+    ADD_EXECUTABLE(${TARGET_NAME}-gui ${APP_TYPE} ${SOURCES} ${${TARGET_NAME}_GUI_SRCS} ${${TARGET_NAME}_GUI_HDRS})
 	TARGET_LINK_LIBRARIES(${TARGET_NAME}-gui ${TARGET_NAME})
+    # Make this target optional to install:
+    SET(TARGETS_TO_INSTALL ${TARGET_NAME}-gui)
 ELSE()
-	SET(${TARGET_NAME}_COMMANDLINE_SRCS src/commandline.cc)
-	ADD_EXECUTABLE(${TARGET_NAME}-cmd ${${TARGET_NAME}_COMMANDLINE_SRCS})
+    LIST(APPEND ${TARGET_NAME}_COMMANDLINE_SRCS src/commandline.cc)
+    ADD_EXECUTABLE(${TARGET_NAME}-cmd ${SOURCES} ${${TARGET_NAME}_COMMANDLINE_SRCS})
 	TARGET_LINK_LIBRARIES(${TARGET_NAME}-cmd ${TARGET_NAME})
+    # Make this target optional to install:
+    SET(TARGETS_TO_INSTALL ${TARGET_NAME}-cmd)
 ENDIF()
+
+
+# Routines for installing shotdetect.
+# Taken from official documentation (http://www.cmake.org/cmake/help/cmake2.6docs.html#command:install)
+install( 
+    TARGETS ${TARGETS_TO_INSTALL}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static
+)

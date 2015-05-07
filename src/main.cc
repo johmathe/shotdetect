@@ -18,11 +18,10 @@
 #include <wx/image.h>
 #include <wx/cmdline.h>
 
+#include "src/version.h"
 #include "src/film.h"
-#include "src/ui/dialog_shotdetect.h"
 #include "src/xml.h"
-
-#define APP_VERSION "SVN-r$Revision: 194 $-$Author: peterb $"
+#include "src/ui/dialog_shotdetect.h"
 
 class xml;
 class film;
@@ -41,11 +40,11 @@ bool ShotApp::OnInit () {
 }
 
 void show_help (char **argv) {
-  printf ("\nShotdetect version \"%s\" ($Date: 2010-10-01 01:35:11 +0200 (Fri, 01 Oct 2010) $), Copyright (c) 2007-2010 Johan Mathe\n\n"
+  printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
           "Usage: %s \n"
           "-h           : show this help\n"
           "-n           : commandline mode (disable GUI)\n"
-          "-s threshold : threshold\n"
+          "-s threshold : threshold (Default=%d)\n"
           "-i file      : input file path\n"
           "-o path      : output path\n"
           "-y year      : set the year\n"
@@ -56,9 +55,11 @@ void show_help (char **argv) {
           "-f           : generate first image for each shot\n"
           "-l           : generate last image for each shot\n"
           "-m           : generate the thumbnail image\n"
-          "-r           : generate the images in native resolution\n",
-          APP_VERSION,
-          argv[0]
+          "-r           : generate the images in native resolution\n"
+          "-c           : print timecode on x-axis in graph\n",
+          g_APP_VERSION,
+          argv[0],
+          DEFAULT_THRESHOLD
          );
 }
 
@@ -76,8 +77,12 @@ int main (int argc, char **argv) {
   extern char *optarg;
   extern int optind, opterr, optopt;
 
+
+  // Initialize threshold to a sensible default value
+  f.threshold=DEFAULT_THRESHOLD;
+
   for (;;) {
-    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmr");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:flwvmrc");
 
     if (c < 0) {
       break;
@@ -90,11 +95,12 @@ int main (int argc, char **argv) {
       exit (EXIT_SUCCESS);
       break;
 
-      /* Draw first and/or last image of scene cut? */
+      /* Draw first image of scene cut? */
     case 'f':
       f.set_first_img(true);
       break;
 
+      /* Draw last image of scene cut? */
     case 'l':
       f.set_last_img(true);
       break;
@@ -124,6 +130,10 @@ int main (int argc, char **argv) {
       f.set_threshold(atoi (optarg));
       break;
 
+      /* Embed timecode in graph  */
+    case 't':
+      f.set_show_timecode(true);
+      break;
 
       /* Id for path creation */
     case 'a':
@@ -137,10 +147,6 @@ int main (int argc, char **argv) {
       xsl_path_set = true;
       break;
 
-    case 'n':
-      gui = false;
-      break;
-
       /* Set the title */
     case 't':
       f.set_title(optarg);
@@ -151,37 +157,42 @@ int main (int argc, char **argv) {
       f.set_year(atoi (optarg));
       break;
 
+      /* Set the input file */
     case 'i':
       f.set_ipath(optarg);
       ifile_set = true;
       break;
 
+      /* Set the output file */
     case 'o':
       f.set_opath(optarg);
       ofile_set = true;
       break;
 
+      /* Run without GUI */
+    case 'n':
+      gui = false;
+      break;
+
+
     default:
       break;
     }
-
   }
 
   if (!gui) {
     // Error handling
     if ( !ifile_set || !ofile_set || !id_set ) {
       if (!ifile_set) {
-        cerr << "please specify an input file" << endl;
-        show_help (argv);
+        cerr << "ERROR: Input filename is missing or empty. See argument '-i'" << endl;
       }
       if (!ofile_set) {
-        cerr << "please specify an output path" << endl;
-        show_help (argv);
+        cerr << "ERROR: Output path is missing or empty. See argument '-o'" << endl;
       }
       if (!id_set) {
-        cerr << "please specify an alphanumeric id" << endl;
-        show_help (argv);
+        cerr << "ERROR: please specify an alphanumeric id. See argument '-a'" << endl;
       }
+      show_help (argv);
       exit (EXIT_FAILURE);
     }
 

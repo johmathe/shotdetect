@@ -1,0 +1,89 @@
+Binary files change-02-update_version_and_credits/.git/index and change-03-threshold_default_75/.git/index differ
+diff -rudN change-02-update_version_and_credits/src/commandline.cc change-03-threshold_default_75/src/commandline.cc
+--- change-02-update_version_and_credits/src/commandline.cc	2013-08-12 01:15:47.909551080 +0200
++++ change-03-threshold_default_75/src/commandline.cc	2013-08-12 01:16:16.129550595 +0200
+@@ -25,11 +25,11 @@
+ //Example
+ //Put the file you want to analyse in the same directory of shotdetect (it not mandatory but itÕs easier with the command line)
+ 
+-//shotdetect -i myvideo.avi -o output_dir -s 60 -w -v -f -l -m -r
++//shotdetect -i myvideo.avi -o output_dir -s 75 -w -v -f -l -m -r
+ 
+ //Options details
+ //-s : set threshold
+-//The threshold is the level for shot detection. High will not detect a lot, low will detect a lot of false shots. A good choice is about 60.
++//The threshold is the level for shot detection. High will not detect a lot, low will detect a lot of false shots. A good choice is about 75.
+ 
+ //-w : generates audio xml informations
+ //See the generated file for more details
+@@ -48,7 +48,7 @@
+   printf ("\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
+           "Usage: %s \n"
+           "-h           : show this help\n"
+-          "-s threshold : threshold\n"
++          "-s threshold : threshold (Default=%d)\n"
+           "-i file      : input file path\n"
+           "-o path      : output path\n"
+           "-y year      : set the year\n"
+@@ -61,7 +61,8 @@
+           "-m           : generate the thumbnail image\n"
+           "-r           : generate the images in native resolution\n",
+           APP_VERSION,
+-          argv[0]
++          argv[0],
++          DEFAULT_THRESHOLD
+          );
+ }
+ 
+@@ -83,7 +84,7 @@
+ 
+ 
+   // Initialize threshold to a sensible default value
+-  f.threshold=60;
++  f.threshold=DEFAULT_THRESHOLD;
+ 
+   for (;;) {
+     int c = getopt (argc, argv, "?ht:y:i:o:a:x:s:flwvmr");
+diff -rudN change-02-update_version_and_credits/src/film.h change-03-threshold_default_75/src/film.h
+--- change-02-update_version_and_credits/src/film.h	2013-08-11 22:45:59.453705117 +0200
++++ change-03-threshold_default_75/src/film.h	2013-08-12 01:01:35.869565681 +0200
+@@ -46,7 +46,7 @@
+ 
+ #define DEFAULT_BDD_PORT 5432
+ #define DEFAULT_THUMB_HEIGHT 85
+-#define DEFAULT_THRESHOLD 60
++#define DEFAULT_THRESHOLD 75
+ 
+ #define RATIO 327
+ #define MIN_INT -32768
+@@ -224,7 +224,7 @@
+     this->input_path = input_file;
+   };
+   inline void set_threshold(int threshold) {
+-    this->threshold=threshold;
++    this->threshold = threshold;
+   };
+   inline void set_ipath(string path) {
+     this->input_path = path;
+diff -rudN change-02-update_version_and_credits/src/main.cc change-03-threshold_default_75/src/main.cc
+--- change-02-update_version_and_credits/src/main.cc	2013-08-12 00:54:24.293573077 +0200
++++ change-03-threshold_default_75/src/main.cc	2013-08-12 00:59:59.021567341 +0200
+@@ -45,7 +45,7 @@
+           "Usage: %s \n"
+           "-h           : show this help\n"
+           "-n           : commandline mode (disable GUI)\n"
+-          "-s threshold : threshold\n"
++          "-s threshold : threshold (Default=%d)\n"
+           "-i file      : input file path\n"
+           "-o path      : output path\n"
+           "-y year      : set the year\n"
+@@ -58,7 +58,8 @@
+           "-m           : generate the thumbnail image\n"
+           "-r           : generate the images in native resolution\n",
+           APP_VERSION,
+-          argv[0]
++          argv[0],
++          DEFAULT_THRESHOLD
+          );
+ }
+ 

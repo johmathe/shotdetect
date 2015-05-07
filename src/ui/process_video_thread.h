@@ -31,7 +31,7 @@ private:
 public:
   wxWindow * dialogParent;
 
-  void *Create (wxWindow * d, list < film > *films) {
+  void Create (wxWindow * d, list < film > *films) {
     this->films = films;
     dialogParent = d;
     wxThread::Create ();

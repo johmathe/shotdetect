@@ -1,20 +1,20 @@
-Website:
+# Website:
 http://johmathe.name/shotdetect.html
 
-Dependencies:
+# Dependencies
 sudo apt-get install libavdevice-dev libavformat-dev libgd2-noxpm libgd2-noxpm-dev
 # Graphical version
 sudo apt-get install libwxgtk2.6-dev wx2.6-doc libwxgtk2.6-headers
 
-Building:
+# Building
 mkdir -p build
 cd  build
 cmake ..
 
-Building a command line version:
+# Build command line version
 mkdir -p build
 cd build
 cmake -D USE_WXWIDGETS:BOOL=OFF ..
 
-Comments:
+# Comments
 johmathe@nonutc.fr
