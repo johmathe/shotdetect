@@ -1,0 +1,25 @@
+language: cpp
+
+# Cache Ubuntu apt packages.
+cache: apt
+
+before_install:
+  - export NUM_THREADS=4
+  - export SCRIPTS=./scripts/travis
+
+install:
+  - sudo -E $SCRIPTS/travis_install.sh
+
+script: $SCRIPTS/travis_build_and_test.sh
+
+before_script:
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/cuda/lib64
+
+script: $SCRIPTS/travis_build_and_test.sh
+
+notifications:
+# Emails are sent to the committer's git-configured email address by default,
+# but only if they have access to the repository.
+  email:
+    on_success: always
+    on_failure: always
