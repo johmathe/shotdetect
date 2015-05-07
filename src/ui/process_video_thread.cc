@@ -35,5 +35,5 @@ void* wxProcessVideoThread::Entry() {
 }
 
 wxProcessVideoThread::wxProcessVideoThread(
-    wxThreadKind kind = wxTHREAD_JOINABLE)
+    wxThreadKind kind)
     : wxThread(kind) {}
