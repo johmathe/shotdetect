@@ -6,8 +6,8 @@
 #define __FILM_H__
 
 #ifndef INT64_C
-#define INT64_C(c) (c ## LL)
-#define UINT64_C(c) (c ## ULL)
+#define INT64_C(c) (c##LL)
+#define UINT64_C(c) (c##ULL)
 #endif
 
 #define THUMB_HEIGHT 84
@@ -17,10 +17,8 @@
 #include <list>
 
 extern "C" {
-
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
-
 }
 
 #ifdef BDD
@@ -40,7 +38,7 @@ extern "C" {
 
 #define MAX_STR 254
 #define MAX_CUTS 200
-#define abs(x) ((x) < 0 ? - (x) : (x))
+#define abs(x) ((x) < 0 ? -(x) : (x))
 #define HAVE_THREADS
 #define MAX_QUERY 400
 
@@ -52,8 +50,6 @@ extern "C" {
 #define MIN_INT -32768
 #define MAX_INT 32767
 
-
-
 using namespace std;
 
 class image;
@@ -62,23 +58,19 @@ class shot;
 class xml;
 class DialogShotDetect;
 class graph;
-class film
-{
-
-private:
+class film {
+ private:
   /* Variables d'état */
   bool first_img_set;
   bool last_img_set;
   bool audio_set;
   bool video_set;
 
-
   unsigned int ech;
   signed short int minright;
   signed short int maxright;
   signed short int minleft;
   signed short int maxleft;
-
 
   /* Various data for ffmpeg */
   AVFormatContext *pFormatCtx;
@@ -108,7 +100,7 @@ private:
   int checknumber;
 
   /* Mem allocation */
-  AVFrame* audio_buf;
+  AVFrame *audio_buf;
   signed short int sample_right;
   signed short int sample_left;
   int ret;
@@ -117,21 +109,20 @@ private:
 
   int samplearg;
 
-  void do_stats (int frame);
-  void get_yuv_colors(AVFrame& pFrame);
-  void CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev);
+  void do_stats(int frame);
+  void get_yuv_colors(AVFrame &pFrame);
+  void CompareFrame(AVFrame *pFrame, AVFrame *pFramePrev);
   graph *g;
 
   void update_metadata();
-  void init_xml (string filename);
-  int close_xml ();
+  void init_xml(string filename);
+  int close_xml();
 
-public:
-  bool thumb_set ;
-  bool shot_set ;
+ public:
+  bool thumb_set;
+  bool shot_set;
 
-
-  DialogShotDetect * dialogParent;
+  DialogShotDetect *dialogParent;
   struct {
     int id;
     string name;
@@ -174,7 +165,7 @@ public:
   /* Year of the movie */
   int year;
   /* Shots */
-  list < shot > shots;
+  list<shot> shots;
   /* Prev Score in compare_frame */
   int prev_score;
   /* ID BDD Film */
@@ -203,100 +194,48 @@ public:
   xml *x;
   bool display;
 
-  int process ();
-  void process_audio ();
+  int process();
+  void process_audio();
   void shotlog(string message);
   void create_main_dir(void);
 
   /* Constructor */
-  film ();
+  film();
 #ifdef WXWIDGETS
-  film (DialogShotDetect *);
+  film(DialogShotDetect *);
 #endif
 
   /* Accessors */
-  inline void set_first_img(bool val) {
-    this->first_img_set = val;
-  };
-  inline void set_last_img(bool val) {
-    this->last_img_set = val;
-  };
-  inline void set_audio(bool val) {
-    this->audio_set = val;
-  };
-  inline void set_video(bool val) {
-    this->video_set = val;
-  };
-  inline void set_thumb(bool val) {
-    this->thumb_set = val;
-  };
-  inline void set_shot(bool val) {
-    this->shot_set = val;
-  };
+  inline void set_first_img(bool val) { this->first_img_set = val; };
+  inline void set_last_img(bool val) { this->last_img_set = val; };
+  inline void set_audio(bool val) { this->audio_set = val; };
+  inline void set_video(bool val) { this->video_set = val; };
+  inline void set_thumb(bool val) { this->thumb_set = val; };
+  inline void set_shot(bool val) { this->shot_set = val; };
   inline void set_input_file(string input_file) {
     this->input_path = input_file;
   };
-  inline void set_threshold(int threshold) {
-    this->threshold = threshold;
-  };
-  inline void set_show_timecode(bool val) {
-    this->show_timecode = val;
-  };
-  inline void set_ipath(string path) {
-    this->input_path = path;
-  };
-  inline void set_opath(string path) {
-    this->global_path = path;
-  };
-  inline void set_year(int year) {
-    this->year=year;
-  };
-  inline void set_alphaid(string alphaid) {
-    this->alphaid = alphaid;
-  };
-  inline void set_title(string title) {
-    this->title = title;
-  };
+  inline void set_threshold(int threshold) { this->threshold = threshold; };
+  inline void set_show_timecode(bool val) { this->show_timecode = val; };
+  inline void set_ipath(string path) { this->input_path = path; };
+  inline void set_opath(string path) { this->global_path = path; };
+  inline void set_year(int year) { this->year = year; };
+  inline void set_alphaid(string alphaid) { this->alphaid = alphaid; };
+  inline void set_title(string title) { this->title = title; };
 
-  inline void set_draw_rgb_graph(bool val) {
-    this->draw_rgb_graph = val;
-  };
-  inline void set_draw_hsv_graph(bool val) {
-    this->draw_hsv_graph = val;
-  };
-  inline void set_draw_yuv_graph(bool val) {
-    this->draw_yuv_graph = val;
-  };
+  inline void set_draw_rgb_graph(bool val) { this->draw_rgb_graph = val; };
+  inline void set_draw_hsv_graph(bool val) { this->draw_hsv_graph = val; };
+  inline void set_draw_yuv_graph(bool val) { this->draw_yuv_graph = val; };
 
-  inline bool get_first_img(void) {
-    return this->first_img_set ;
-  };
-  inline bool get_last_img(void)  {
-    return this->last_img_set ;
-  };
-  inline bool get_audio(void)     {
-    return this->audio_set ;
-  };
-  inline bool get_video(void)     {
-    return this->video_set ;
-  };
-  inline bool get_thumb(void)     {
-    return this->thumb_set ;
-  };
-  inline bool get_shot(void)      {
-    return this->shot_set ;
-  };
-  inline string get_ipath(void)   {
-    return this->input_path ;
-  };
-  inline string get_opath(void)   {
-    return this->global_path ;
-  };
-  inline double get_fps(void)     {
-    return this->fps ;
-  };
-
+  inline bool get_first_img(void) { return this->first_img_set; };
+  inline bool get_last_img(void) { return this->last_img_set; };
+  inline bool get_audio(void) { return this->audio_set; };
+  inline bool get_video(void) { return this->video_set; };
+  inline bool get_thumb(void) { return this->thumb_set; };
+  inline bool get_shot(void) { return this->shot_set; };
+  inline string get_ipath(void) { return this->input_path; };
+  inline string get_opath(void) { return this->global_path; };
+  inline double get_fps(void) { return this->fps; };
 };
-
 
 #endif /* !__FILM_H__ */

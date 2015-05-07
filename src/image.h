@@ -3,13 +3,12 @@
  * $Date: 2010-10-01 01:35:11 +0200 (Fri, 01 Oct 2010) $
  */
 
-
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
 #ifndef INT64_C
-#define INT64_C(c) (c ## LL)
-#define UINT64_C(c) (c ## ULL)
+#define INT64_C(c) (c##LL)
+#define UINT64_C(c) (c##ULL)
 #endif
 
 #include <stdio.h>
@@ -24,11 +23,9 @@ extern "C" {
 #include <string>
 #include <stdlib.h>
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 
 #include "src/film.h"
 
@@ -44,13 +41,12 @@ using namespace std;
 class conf;
 class film;
 
-
-class image
-{
+class image {
   film *f;
   bool thumb_set;
   bool shot_set;
-public:
+
+ public:
   int width;
   int height;
   int width_thumb;
@@ -58,11 +54,10 @@ public:
   string thumb;
   string img;
   int id;
-  bool type;			// BEGIN || END
-  int SaveFrame (AVFrame * pFrame, int frame_number);
-  int create_img_dir ();
-  image (film *, int, int, int, bool, bool, bool);
-
+  bool type;  // BEGIN || END
+  int SaveFrame(AVFrame *pFrame, int frame_number);
+  int create_img_dir();
+  image(film *, int, int, int, bool, bool, bool);
 };
 
 #endif /* !__IMAGE_H__ */

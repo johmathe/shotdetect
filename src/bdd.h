@@ -3,7 +3,6 @@
  * $Date: 2007-01-29 12:10:37 +0100 (Mon, 29 Jan 2007) $
  */
 
-
 #ifndef __SHOTBDD_H__
 #define __SHOTBDD_H__
 
@@ -22,8 +21,8 @@ using namespace std;
 class film;
 
 class bdd {
-private:
-  film * f;
+ private:
+  film *f;
 
   PGconn *conn;
   PGresult *result;
@@ -32,12 +31,12 @@ private:
   string base;
   int port;
 
-public:
-  bdd (const string host, const string login, const string pwd, int port,
-       const string base);
-  ~bdd ();
-  void init_bdd_values ();
-  void updatebdd ();
+ public:
+  bdd(const string host, const string login, const string pwd, int port,
+      const string base);
+  ~bdd();
+  void init_bdd_values();
+  void updatebdd();
 };
 
 #endif /* !__SHOTBDD_H__ */

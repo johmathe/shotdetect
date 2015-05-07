@@ -7,13 +7,11 @@
 #define __SHOT_H__
 #include "src/image.h"
 
-
 class image;
 
-class shot
-{
-private:
-public:
+class shot {
+ private:
+ public:
   int myid;
 
   /* Durée en frame */
@@ -27,8 +25,8 @@ public:
   /* img */
   image *img_begin;
   image *img_end;
-  shot ();
-  ~shot ();
+  shot();
+  ~shot();
 };
 
 #endif /* !__SHOT_H__ */
