@@ -217,7 +217,7 @@ void graph::draw_canvas(gdImagePtr im, string title, graph_color colorset) {
   int tick_length;
   bool is_second, is_minute, is_hour;
   int hour, minute, second, frame;
-  char timecode[10];
+  char timecode[11];
   int frames;
 
   gdImageFilledRectangle(im, 0, 0, xsize, ysize, colorset.background);

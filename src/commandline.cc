@@ -204,10 +204,16 @@ int main(int argc, char **argv) {
   f.x = x;
 
   f.shotlog("Processing movie.");
+<<<<<<< HEAD
   f.process();
   string xml_path = f.global_path;
   xml_path += "/result.xml";
   f.x->write_data(xml_path);
+=======
+  f.process();
+  string xml_path = "result.xml";
+  f.x->write_data(xml_path);
+>>>>>>> c3b23bf82393b09c373c5df15f5f22dc24951ad3
   /*string finished_path = f.global_path;
   finished_path += "/finished";
   FILE *fd_finished = fopen(finished_path.c_str(),"w");

@@ -40,6 +40,7 @@ bool ShotApp::OnInit() {
   return true;
 }
 
+<<<<<<< HEAD
 void show_help(char **argv) {
   printf(
       "\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
@@ -60,7 +61,6 @@ void show_help(char **argv) {
       "-r           : generate the images in native resolution\n"
       "-c           : print timecode on x-axis in graph\n",
       g_APP_VERSION, argv[0], DEFAULT_THRESHOLD);
-}
 
 int main(int argc, char **argv) {
   film f = film();
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
   f.threshold = DEFAULT_THRESHOLD;
 
   for (;;) {
-    int c = getopt(argc, argv, "?hnt:y:i:o:a:x:s:flwvmrc");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:fTlwvmrc");
 
     if (c < 0) {
       break;
@@ -130,6 +130,15 @@ int main(int argc, char **argv) {
       case 'c':
         f.set_show_timecode(true);
         break;
+      /* Set the title */
+    case 't':
+      f.set_title(optarg);
+      break;
+
+      /* Embed timecode in graph  */
+    case 'T':
+      f.set_show_timecode(true);
+      break;
 
       /* Id for path creation */
       case 'a':
@@ -141,11 +150,6 @@ int main(int argc, char **argv) {
       case 'x':
         xsl_path = optarg;
         xsl_path_set = true;
-        break;
-
-      /* Set the title */
-      case 't':
-        f.set_title(optarg);
         break;
 
       /* Set the year */
