@@ -60,6 +60,7 @@ void show_help(char **argv) {
       "-r           : generate the images in native resolution\n"
       "-c           : print timecode on x-axis in graph\n",
       g_APP_VERSION, argv[0], DEFAULT_THRESHOLD);
+}
 
 int main(int argc, char **argv) {
   film f = film();
