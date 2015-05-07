@@ -40,7 +40,6 @@ bool ShotApp::OnInit() {
   return true;
 }
 
-<<<<<<< HEAD
 void show_help(char **argv) {
   printf(
       "\nShotdetect version \"%s\", Copyright (c) 2007-2013 Johan Mathe\n\n"
