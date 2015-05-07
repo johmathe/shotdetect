@@ -37,6 +37,7 @@ bool ShotApp::OnInit () {
   DialogShotDetect* dialog_shot_detect = new DialogShotDetect (0, -1, wxT (""));
   SetTopWindow (dialog_shot_detect);
   dialog_shot_detect->Show ();
+  return true;
 }
 
 void show_help (char **argv) {
@@ -131,7 +132,7 @@ int main (int argc, char **argv) {
       break;
 
       /* Embed timecode in graph  */
-    case 't':
+    case 'c':
       f.set_show_timecode(true);
       break;
 
