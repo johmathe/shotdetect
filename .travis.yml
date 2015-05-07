@@ -5,7 +5,7 @@ cache: apt
 
 before_install:
   - export NUM_THREADS=4
-  - export SCRIPTS=./scripts/travis
+  - export SCRIPTS=./scripts/
 
 install:
   - sudo -E $SCRIPTS/travis_install.sh
