@@ -123,7 +123,7 @@ private:
     int legend;
     int grid;
     int video_end;          // The end of the video
-    
+
     // RGB:
     int red, green, blue;
 
@@ -168,7 +168,9 @@ public:
   inline void add_colorset(graph_color graph_color) {
     graph_colors.push_back (graph_color);
   }
-
+  // This is non-sensical.. at the film.cc 218 where these are getting passed,
+  // we don't pass r,g, b values. instead it is the total of first 3 sections.
+  // Not fixxng though at the moment, creating an issue to be fixed later.
   inline void push_yuv(int cy, int cu, int cv) {
     pixel_color yuv_components;
     yuv_components.c1 = cy;

@@ -125,7 +125,14 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   c1tot = 0;
   c2tot = 0;
   c3tot = 0;
-  int c1prev, c2prev, c3prev;
+  c4tot =  0;
+  c5tot = 0;
+  c6tot = 0;
+  c7tot = 0;
+  c8tot = 0;
+  c9tot = 0;
+
+  int c1prev, c2prev, c3prev, c4prev, c5prev, c6prev, c7prev, c8prev, c9prev;
   int score;
   score = 0;
 
@@ -133,24 +140,54 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   // This would allow to detect areas on the image which have stayed
   // the same, and (a) increase score if all areas have changed
   // and (b) decrease score if some areas have changed less (ot not at all).
-  for (y = 0; y < height; y++) {
-    for (x = 0; x < width; x++) {
-      //c0 = *(pFrame->data[0] + y * pFrame->linesize[0] + x*3);
+  //
+  // Split image into 9 sections. 3 sections means shots having variatios at left or rightmost will be ignored.
+  for (y = 0; y < height/3; y++) {
+    for (x = 0; x < width/3; x++) {
+    // For loop must not be through all ranges of width(that'll give pointer error.)
       c1 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3);
       c2 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 1);
       c3 = *(pFrame->data[0] + y * pFrame->linesize[0] + x * 3 + 2);
+      c4 = *(pFrame->data[0] + (y+1) * pFrame->linesize[0] + x*3);
+      c5 = *(pFrame->data[0] + (y+1) * pFrame->linesize[0] + x*3 + 1);
+      c6 = *(pFrame->data[0] + (y+1) * pFrame->linesize[0] + x * 3 + 2);
+      c7 = *(pFrame->data[0] + (y+2) * pFrame->linesize[0] + x*3);
+      c8 = *(pFrame->data[0] + (y+2) * pFrame->linesize[0] + x*3);
+      c9 = *(pFrame->data[0] + (y+2) * pFrame->linesize[0] + x * 3 + 2);
 
       c1prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3);
       c2prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 1);
       c3prev = *(pFramePrev->data[0] + y * pFramePrev->linesize[0] + x * 3 + 2);
+      c4prev = *(pFramePrev->data[0] + (y+1) * pFramePrev->linesize[0] + x*3);
+      c5prev = *(pFramePrev->data[0] + (y+1) * pFramePrev->linesize[0] + x*3 + 1);
+      c6prev = *(pFramePrev->data[0] + (y+1) * pFramePrev->linesize[0] + x * 3 + 2);
+      c7prev = *(pFramePrev->data[0] + (y+2) * pFramePrev->linesize[0] + x*3);
+      c8prev = *(pFramePrev->data[0] + (y+2) * pFramePrev->linesize[0] + x*3 + 1);
+      c9prev = *(pFramePrev->data[0] + (y+2) * pFramePrev->linesize[0] + x * 3 + 2);
 
       c1tot += int ((char) c1 + 127);
       c2tot += int ((char) c2 + 127);
       c3tot += int ((char) c3 + 127);
+      c4tot += int ((char) c4 + 127);
+      c5tot += int ((char) c5 + 127);
+      c6tot += int ((char) c6 + 127);
+      c7tot += int ((char) c7 + 127);
+      c8tot += int ((char) c8 + 127);
+      c9tot += int ((char) c9 + 127);
 
+      // Add weights here if you want to stress different parts of section
+      // sections are split as : c1, c2, c3
+      //                         c4, c5, c6
+      //                         c7, c8, c9
       score += abs (c1 - c1prev);
       score += abs (c2 - c2prev);
       score += abs (c3 - c3prev);
+      score += abs (c4 - c4prev);
+      score += abs (c5 - c5prev);
+      score += abs (c6 - c6prev);
+      score += abs (c7 - c7prev);
+      score += abs (c8 - c8prev);
+      score += abs (c9 - c9prev);
     }
   }
   int nbpx = (height * width);
@@ -162,7 +199,12 @@ void film::CompareFrame (AVFrame * pFrame, AVFrame * pFramePrev)
   c1tot /= nbpx;
   c2tot /= nbpx;
   c3tot /= nbpx;
-
+  c4tot /= nbpx;
+  c5tot /= nbpx;
+  c6tot /= nbpx;
+  c7tot /= nbpx;
+  c8tot /= nbpx;
+  c9tot /= nbpx;
   /*
    * Calculate numerical difference between this and the previous frame
    */
