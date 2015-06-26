@@ -34,29 +34,24 @@ using namespace std;
 
 class film;
 
-class xml
-{
-
-private:
+class xml {
+ private:
   /* Chemin relatif du fichier xml propre à l'application */
   string xml_own_path;
   /* Chemin relatif du fichier xml après application du xsl */
   string xml_out_path;
   /* Chemin de la feuille xsl  */
-  xmlChar *ConvertInput (const char *in, const char *encoding);
+  xmlChar *ConvertInput(const char *in, const char *encoding);
   film *f;
 
-
-public:
+ public:
   string xsl_path;
   string xsl_name;
-  void write_data (string &);
-  void apply_xsl (string & xml_out);
-  xml (film *);
-  ~xml ();
-  inline void set_xsl_path(const string & arg) {
-    xsl_path = arg ;
-  };
+  void write_data(string &);
+  void apply_xsl(string &xml_out);
+  xml(film *);
+  ~xml();
+  inline void set_xsl_path(const string &arg) { xsl_path = arg; };
 };
 
 #endif /* !__XML_H__ */

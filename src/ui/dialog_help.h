@@ -16,17 +16,15 @@
 #include <wx/icon.h>
 #include <wx/frame.h>
 #include <wx/dialog.h>
-class HelpFrame:public wxDialog
-{
+class HelpFrame : public wxDialog {
+ public:
+  HelpFrame(wxWindow* parent, wxWindowID id, const wxString& title,
+            const wxPoint& pos = wxDefaultPosition,
+            const wxSize& size = wxDefaultSize,
+            long style = wxDEFAULT_FRAME_STYLE);
 
-public:
-  HelpFrame (wxWindow * parent, wxWindowID id, const wxString & title,
-             const wxPoint & pos = wxDefaultPosition,
-             const wxSize & size = wxDefaultSize,
-             long style = wxDEFAULT_FRAME_STYLE);
-
-private:
-  wxTextCtrl * m_text;
+ private:
+  wxTextCtrl* m_text;
 };
 
 #endif

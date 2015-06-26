@@ -19,10 +19,11 @@
 #include "src/ui/dialog_help.h"
 
 using namespace std;
-HelpFrame::HelpFrame (wxWindow * parent, wxWindowID id, const wxString & title, const wxPoint & position, const wxSize & size, long style):
-  wxDialog (parent, id, title, position, size, style)
-{
-  m_text = new wxTextCtrl (this, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+HelpFrame::HelpFrame(wxWindow* parent, wxWindowID id, const wxString& title,
+                     const wxPoint& position, const wxSize& size, long style)
+    : wxDialog(parent, id, title, position, size, style) {
+  m_text = new wxTextCtrl(this, -1, wxEmptyString, wxDefaultPosition,
+                          wxDefaultSize, wxTE_MULTILINE);
   // m_text->LoadFile (_T ("help.txt"));
-  Layout ();
+  Layout();
 }
