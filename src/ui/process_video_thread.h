@@ -18,29 +18,23 @@
 #ifndef __WXPROCESSVIDEOTHREAD_H__
 #define __WXPROCESSVIDEOTHREAD_H__
 
+// http://www.dent.med.uni-muenchen.de/~wmglo/wxthread/CompleteExample.html
 
-//http://www.dent.med.uni-muenchen.de/~wmglo/wxthread/CompleteExample.html
+class wxProcessVideoThread : public wxThread {
+ private:
+  list<film> *films;
+  void *Entry();
 
+ public:
+  wxWindow *dialogParent;
 
-class wxProcessVideoThread:public wxThread
-{
-private:
-  list < film > *films;
-  void *Entry ();
-
-public:
-  wxWindow * dialogParent;
-
-  void Create (wxWindow * d, list < film > *films) {
+  void Create(wxWindow *d, list<film> *films) {
     this->films = films;
     dialogParent = d;
-    wxThread::Create ();
+    wxThread::Create();
   };
 
-  wxProcessVideoThread (wxThreadKind kind);
-
+  wxProcessVideoThread(wxThreadKind kind);
 };
-
-
 
 #endif

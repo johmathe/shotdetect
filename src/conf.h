@@ -3,16 +3,13 @@
  * $Date: 2007-01-29 12:10:37 +0100 (Mon, 29 Jan 2007) $
  */
 
-
 #ifndef __CONF_H__
 #define __CONF_H__
 
 #include "src/film.h"
 
-class conf
-{
-
-public:
+class conf {
+ public:
   /* Config struct */
   string portc;
   string host;
@@ -26,10 +23,8 @@ public:
   int thumb_height;
   int port;
 
-
-  conf ();
-  ~conf ();
-
+  conf();
+  ~conf();
 };
 
 #endif /* !__CONF_H__ */

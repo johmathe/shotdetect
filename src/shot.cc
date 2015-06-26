@@ -16,13 +16,9 @@
 
 #include "src/shot.h"
 
-
-shot::shot ()
-{
+shot::shot() {
   img_begin = NULL;
   img_end = NULL;
 }
 
-shot::~shot ()
-{
-}
+shot::~shot() {}

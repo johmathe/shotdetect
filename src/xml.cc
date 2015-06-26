@@ -21,9 +21,7 @@ using namespace std;
 class film;
 class shot;
 
-xmlChar *
-xml::ConvertInput (const char *in, const char *encoding)
-{
+xmlChar *xml::ConvertInput(const char *in, const char *encoding) {
   xmlChar *out;
   int ret;
   int size;
@@ -31,48 +29,47 @@ xml::ConvertInput (const char *in, const char *encoding)
   int temp;
   xmlCharEncodingHandlerPtr handler;
 
-  if (in == 0)
-    return 0;
+  if (in == 0) return 0;
 
-  handler = xmlFindCharEncodingHandler (encoding);
+  handler = xmlFindCharEncodingHandler(encoding);
 
   if (!handler) {
-    printf ("ConvertInput: no encoding handler found for '%s'\n", encoding ? encoding : "");
+    printf("ConvertInput: no encoding handler found for '%s'\n",
+           encoding ? encoding : "");
     return 0;
   }
 
-  size = (int) strlen (in) + 1;
+  size = (int)strlen(in) + 1;
   out_size = size * 2 - 1;
-  out = (unsigned char *) xmlMalloc ((size_t) out_size);
+  out = (unsigned char *)xmlMalloc((size_t)out_size);
 
   if (out != 0) {
     temp = size - 1;
-    ret = handler->input (out, &out_size, (const xmlChar *) in, &temp);
+    ret = handler->input(out, &out_size, (const xmlChar *)in, &temp);
     if ((ret < 0) || (temp - size + 1)) {
       if (ret < 0) {
-        printf ("ConvertInput: conversion wasn't successful.\n");
+        printf("ConvertInput: conversion wasn't successful.\n");
       } else {
-        printf ("ConvertInput: conversion wasn't successful. converted: %i octets.\n", temp);
+        printf(
+            "ConvertInput: conversion wasn't successful. converted: %i "
+            "octets.\n",
+            temp);
       }
 
-      xmlFree (out);
+      xmlFree(out);
       out = 0;
     } else {
-      out = (unsigned char *) xmlRealloc (out, out_size + 1);
-      out[out_size] = 0;	/* null terminating out */
+      out = (unsigned char *)xmlRealloc(out, out_size + 1);
+      out[out_size] = 0; /* null terminating out */
     }
   } else {
-    printf ("ConvertInput: no mem\n");
+    printf("ConvertInput: no mem\n");
   }
 
   return out;
 }
 
-
-
-void
-xml::write_data (string & filename)
-{
+void xml::write_data(string &filename) {
   int rc;
   xmlTextWriterPtr writer;
   xmlChar *tmp;
@@ -82,87 +79,105 @@ xml::write_data (string & filename)
   /*
    * Create a new XmlWriter for DOM, with no compression.
    */
-  list < shot >::iterator il;
-  writer = xmlNewTextWriterDoc (&doc, 0);
+  list<shot>::iterator il;
+  writer = xmlNewTextWriterDoc(&doc, 0);
 
-  rc = xmlTextWriterStartDocument (writer, NULL, MY_ENCODING, NULL);
-  rc = xmlTextWriterStartElement (writer, BAD_CAST "shotdetect");
-  tmp = ConvertInput ("IRI ShotDetect ", MY_ENCODING);
-  rc = xmlTextWriterWriteComment (writer, tmp);
+  rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
+  rc = xmlTextWriterStartElement(writer, BAD_CAST "shotdetect");
+  tmp = ConvertInput("IRI ShotDetect ", MY_ENCODING);
+  rc = xmlTextWriterWriteComment(writer, tmp);
 
-  if (tmp != NULL)
-    xmlFree (tmp);
+  if (tmp != NULL) xmlFree(tmp);
 
-  xmlTextWriterStartElement (writer, BAD_CAST "content");
-  xmlTextWriterWriteAttribute (writer, BAD_CAST "id", BAD_CAST f->alphaid.c_str ());
+  xmlTextWriterStartElement(writer, BAD_CAST "content");
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "id",
+                              BAD_CAST f->alphaid.c_str());
 
-  xmlTextWriterStartElement (writer, BAD_CAST "head");
+  xmlTextWriterStartElement(writer, BAD_CAST "head");
 
-  strflx.str ("");
+  strflx.str("");
   strflx << f->year;
-  xmlTextWriterWriteElement (writer, BAD_CAST "year", BAD_CAST strflx.str ().c_str ());
+  xmlTextWriterWriteElement(writer, BAD_CAST "year",
+                            BAD_CAST strflx.str().c_str());
 
-  xmlTextWriterStartElement (writer, BAD_CAST "author");
-  xmlTextWriterWriteElement (writer, BAD_CAST "name", BAD_CAST f->author.name.c_str ());
-  xmlTextWriterWriteElement (writer, BAD_CAST "surname", BAD_CAST f->author.surname.c_str ());
-  xmlTextWriterEndElement (writer);
-  xmlTextWriterWriteElement (writer, BAD_CAST "abstract", BAD_CAST f->abstract.c_str ());
-  xmlTextWriterWriteElement (writer, BAD_CAST "title", BAD_CAST f->title.c_str ());
-  xmlTextWriterEndElement (writer);
+  xmlTextWriterStartElement(writer, BAD_CAST "author");
+  xmlTextWriterWriteElement(writer, BAD_CAST "name",
+                            BAD_CAST f->author.name.c_str());
+  xmlTextWriterWriteElement(writer, BAD_CAST "surname",
+                            BAD_CAST f->author.surname.c_str());
+  xmlTextWriterEndElement(writer);
+  xmlTextWriterWriteElement(writer, BAD_CAST "abstract",
+                            BAD_CAST f->abstract.c_str());
+  xmlTextWriterWriteElement(writer, BAD_CAST "title",
+                            BAD_CAST f->title.c_str());
+  xmlTextWriterEndElement(writer);
 
-  xmlTextWriterStartElement (writer, BAD_CAST "media");
-  xmlTextWriterWriteAttribute (writer, BAD_CAST "src", BAD_CAST f->get_ipath().c_str ());
-  strflx.str ("");
+  xmlTextWriterStartElement(writer, BAD_CAST "media");
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
+                              BAD_CAST f->get_ipath().c_str());
+  strflx.str("");
   strflx << f->fps;
-  xmlTextWriterWriteElement (writer, BAD_CAST "fps", BAD_CAST strflx.str ().c_str ());
-  strflx.str ("");
+  xmlTextWriterWriteElement(writer, BAD_CAST "fps",
+                            BAD_CAST strflx.str().c_str());
+  strflx.str("");
   strflx << f->height;
-  xmlTextWriterWriteElement (writer, BAD_CAST "height", BAD_CAST strflx.str ().c_str ());
-  strflx.str ("");
+  xmlTextWriterWriteElement(writer, BAD_CAST "height",
+                            BAD_CAST strflx.str().c_str());
+  strflx.str("");
   strflx << f->width;
-  xmlTextWriterWriteElement (writer, BAD_CAST "width", BAD_CAST strflx.str ().c_str ());
+  xmlTextWriterWriteElement(writer, BAD_CAST "width",
+                            BAD_CAST strflx.str().c_str());
 
-  strflx.str ("");
-  strflx << int (f->duration.mstotal);
-  xmlTextWriterWriteElement (writer, BAD_CAST "duration", BAD_CAST strflx.str ().c_str ());
+  strflx.str("");
+  strflx << int(f->duration.mstotal);
+  xmlTextWriterWriteElement(writer, BAD_CAST "duration",
+                            BAD_CAST strflx.str().c_str());
 
-  strflx.str ("");
+  strflx.str("");
   strflx << f->nchannel;
-  xmlTextWriterWriteElement (writer, BAD_CAST "nchannel", BAD_CAST strflx.str ().c_str ());
-  xmlTextWriterStartElement (writer, BAD_CAST "codec");
-  xmlTextWriterWriteElement (writer, BAD_CAST "video", BAD_CAST f->codec.video.c_str ());
-  xmlTextWriterWriteElement (writer, BAD_CAST "audio", BAD_CAST f->codec.audio.c_str ());
-  xmlTextWriterEndElement (writer);
-  xmlTextWriterEndElement (writer);
+  xmlTextWriterWriteElement(writer, BAD_CAST "nchannel",
+                            BAD_CAST strflx.str().c_str());
+  xmlTextWriterStartElement(writer, BAD_CAST "codec");
+  xmlTextWriterWriteElement(writer, BAD_CAST "video",
+                            BAD_CAST f->codec.video.c_str());
+  xmlTextWriterWriteElement(writer, BAD_CAST "audio",
+                            BAD_CAST f->codec.audio.c_str());
+  xmlTextWriterEndElement(writer);
+  xmlTextWriterEndElement(writer);
 
-  xmlTextWriterEndElement (writer);
+  xmlTextWriterEndElement(writer);
 
-  xmlTextWriterStartElement (writer, BAD_CAST "body");
-  xmlTextWriterStartElement (writer, BAD_CAST "shots");
+  xmlTextWriterStartElement(writer, BAD_CAST "body");
+  xmlTextWriterStartElement(writer, BAD_CAST "shots");
 
   /* Mise en place des elements shots */
-  for (il = f->shots.begin (); il != f->shots.end (); il++) {
-    strflx.str ("");
+  for (il = f->shots.begin(); il != f->shots.end(); il++) {
+    strflx.str("");
     strflx << (*il).myid;
-    rc = xmlTextWriterStartElement (writer, BAD_CAST "shot");
-    rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "id", BAD_CAST strflx.str ().c_str ());
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "shot");
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "id",
+                                     BAD_CAST strflx.str().c_str());
 
-    strflx.str ("");
+    strflx.str("");
     strflx << (*il).fduration;
 
-    rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "fduration", BAD_CAST strflx.str ().c_str ());
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "fduration",
+                                     BAD_CAST strflx.str().c_str());
 
-    strflx.str ("");
-    strflx << int ((*il).msduration);
-    rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "msduration", BAD_CAST strflx.str ().c_str ());
+    strflx.str("");
+    strflx << int((*il).msduration);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "msduration",
+                                     BAD_CAST strflx.str().c_str());
 
-    strflx.str ("");
+    strflx.str("");
     strflx << (*il).fbegin;
-    rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "fbegin", BAD_CAST strflx.str ().c_str ());
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "fbegin",
+                                     BAD_CAST strflx.str().c_str());
 
-    strflx.str ("");
-    strflx << int ((*il).msbegin);
-    rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "msbegin", BAD_CAST strflx.str ().c_str ());
+    strflx.str("");
+    strflx << int((*il).msbegin);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "msbegin",
+                                     BAD_CAST strflx.str().c_str());
 
     /*
      * Element image
@@ -170,136 +185,145 @@ xml::write_data (string & filename)
 
     if ((*il).img_begin != NULL) {
       if (f->shot_set) {
-        rc = xmlTextWriterStartElement (writer, BAD_CAST "img");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "size", BAD_CAST "original");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "type", BAD_CAST "in");
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "img");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size",
+                                         BAD_CAST "original");
+        rc =
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST "in");
 
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "src", BAD_CAST (*il).img_begin->img.c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
+                                         BAD_CAST(*il).img_begin->img.c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_begin->width;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "width", BAD_CAST strflx.str ().c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "width",
+                                         BAD_CAST strflx.str().c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_begin->height;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "height", BAD_CAST strflx.str ().c_str ());
-        rc = xmlTextWriterEndElement (writer);
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "height",
+                                         BAD_CAST strflx.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
       }
       /*
        * Element thumb
        */
       if (f->thumb_set) {
-        rc = xmlTextWriterStartElement (writer, BAD_CAST "img");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "size", BAD_CAST "thumb");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "type", BAD_CAST "in");
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "img");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size",
+                                         BAD_CAST "thumb");
+        rc =
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST "in");
 
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "src", BAD_CAST (*il).img_begin->thumb.c_str ());
+        rc = xmlTextWriterWriteAttribute(
+            writer, BAD_CAST "src", BAD_CAST(*il).img_begin->thumb.c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_begin->width_thumb;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "width", BAD_CAST strflx.str ().c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "width",
+                                         BAD_CAST strflx.str().c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_begin->height_thumb;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "height", BAD_CAST strflx.str ().c_str ());
-        rc = xmlTextWriterEndElement (writer);
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "height",
+                                         BAD_CAST strflx.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
       }
     }
-
 
     if ((*il).img_end != NULL) {
       /*
        * Element image
        */
       if (f->shot_set) {
-        rc = xmlTextWriterStartElement (writer, BAD_CAST "img");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "size", BAD_CAST "original");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "type", BAD_CAST "out");
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "img");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size",
+                                         BAD_CAST "original");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "type",
+                                         BAD_CAST "out");
 
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "src", BAD_CAST (*il).img_end->img.c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
+                                         BAD_CAST(*il).img_end->img.c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_end->width;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "width", BAD_CAST strflx.str ().c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "width",
+                                         BAD_CAST strflx.str().c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_end->height;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "height", BAD_CAST strflx.str ().c_str ());
-        rc = xmlTextWriterEndElement (writer);
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "height",
+                                         BAD_CAST strflx.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
       }
       /*
        * Element thumb
        */
       if (f->thumb_set) {
-        rc = xmlTextWriterStartElement (writer, BAD_CAST "img");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "size", BAD_CAST "thumb");
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "type", BAD_CAST "out");
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "img");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size",
+                                         BAD_CAST "thumb");
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "type",
+                                         BAD_CAST "out");
 
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "src", BAD_CAST (*il).img_end->thumb.c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
+                                         BAD_CAST(*il).img_end->thumb.c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_end->width_thumb;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "width", BAD_CAST strflx.str ().c_str ());
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "width",
+                                         BAD_CAST strflx.str().c_str());
 
-        strflx.str ("");
+        strflx.str("");
         strflx << (*il).img_end->height_thumb;
-        rc = xmlTextWriterWriteAttribute (writer, BAD_CAST "height", BAD_CAST strflx.str ().c_str ());
-        rc = xmlTextWriterEndElement (writer);
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "height",
+                                         BAD_CAST strflx.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
       }
-
     }
-    xmlTextWriterEndElement (writer);
-
+    xmlTextWriterEndElement(writer);
   }
 
-  rc = xmlTextWriterEndDocument (writer);
+  rc = xmlTextWriterEndDocument(writer);
   if (rc < 0) {
-    printf ("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+    printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
     return;
   }
 
-  xmlFreeTextWriter (writer);
+  xmlFreeTextWriter(writer);
   this->xml_own_path = f->global_path;
   this->xml_own_path += "/";
   this->xml_own_path += f->alphaid;
   this->xml_own_path += "/";
   this->xml_own_path += filename;
-  xmlSaveFileEnc (xml_own_path.c_str (), doc, MY_ENCODING);
-  xmlFreeDoc (doc);
-
+  xmlSaveFileEnc(xml_own_path.c_str(), doc, MY_ENCODING);
+  xmlFreeDoc(doc);
 }
 
-xml::xml (film * t)
-{
-  this->f = t;
-}
+xml::xml(film *t) { this->f = t; }
 
-xml::~xml ()
-{
-}
+xml::~xml() {}
 
 extern int xmlLoadExtDtdDefaultValue;
 
-void
-xml::apply_xsl (string & xml_file)
-{
+void xml::apply_xsl(string &xml_file) {
   xsltStylesheetPtr cur = NULL;
   xmlDocPtr doc, res;
   xml_out_path = xml_file;
-  xmlSubstituteEntitiesDefault (1);
-  xmlSubstituteEntitiesDefault (1);
+  xmlSubstituteEntitiesDefault(1);
+  xmlSubstituteEntitiesDefault(1);
   xmlLoadExtDtdDefaultValue = 1;
 
   /*
    * Construction du chemin pour la feuille de style XSL
    */
-  cur = xsltParseStylesheetFile ((const xmlChar *) xsl_path.c_str ());
+  cur = xsltParseStylesheetFile((const xmlChar *)xsl_path.c_str());
 
   /*
    * Construction du chemin pour le fichier d'entrée xml
    */
-  doc = xmlParseFile (xml_own_path.c_str ());
-  res = xsltApplyStylesheet (cur, doc, NULL);
+  doc = xmlParseFile(xml_own_path.c_str());
+  res = xsltApplyStylesheet(cur, doc, NULL);
 
   /*
    * Construction du chemin pour la sortie xml
@@ -310,14 +334,14 @@ xml::apply_xsl (string & xml_file)
   path_result += f->alphaid;
   path_result += "/";
   path_result += xml_out_path;
-  xsltSaveResultToFilename (path_result.c_str (), res, cur, 0);
+  xsltSaveResultToFilename(path_result.c_str(), res, cur, 0);
 
   /*
    * Nettoyage mémoire
    */
-  xsltFreeStylesheet (cur);
-  xmlFreeDoc (res);
-  xmlFreeDoc (doc);
-  xsltCleanupGlobals ();
-  xmlCleanupParser ();
+  xsltFreeStylesheet(cur);
+  xmlFreeDoc(res);
+  xmlFreeDoc(doc);
+  xsltCleanupGlobals();
+  xmlCleanupParser();
 }

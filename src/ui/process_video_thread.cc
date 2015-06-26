@@ -15,29 +15,25 @@
  */
 #include "process_video_thread.h"
 
-void *
-wxProcessVideoThread::Entry ()
-{
-
-  list < film >::iterator il;
-  for (il = films->begin (); il != films->end (); il++) {
-    (*il).process ();
+void* wxProcessVideoThread::Entry() {
+  list<film>::iterator il;
+  for (il = films->begin(); il != films->end(); il++) {
+    (*il).process();
     string xml_path = (*il).alphaid;
     xml_path += "_";
     xml_path += (*il).x->xsl_name;
     xml_path += ".xml";
     string xml_own_path = (*il).alphaid;
     xml_own_path += ".xml";
-    (*il).x->write_data (xml_own_path);
-    (*il).x->apply_xsl (xml_path);
+    (*il).x->write_data(xml_own_path);
+    (*il).x->apply_xsl(xml_path);
   }
 
-  wxCommandEvent event (wxEVT_COMMAND_MENU_SELECTED, ID_CMD_LAUNCHTHREAD);
-  wxPostEvent (dialogParent, event);
+  wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, ID_CMD_LAUNCHTHREAD);
+  wxPostEvent(dialogParent, event);
   return NULL;
 }
 
-wxProcessVideoThread::wxProcessVideoThread (wxThreadKind kind = wxTHREAD_JOINABLE):wxThread (kind)
-{
-
-}
+wxProcessVideoThread::wxProcessVideoThread(
+    wxThreadKind kind)
+    : wxThread(kind) {}
