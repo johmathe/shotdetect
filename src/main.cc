@@ -211,6 +211,7 @@ int main(int argc, char **argv) {
 
     string xml_own_path = f.alphaid;
     xml_own_path += ".xml";
+    f.shotlog(xml_own_path);
     f.x->write_data(xml_own_path);
 
     // Optionally, apply XSLT: --------------

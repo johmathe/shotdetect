@@ -25,6 +25,7 @@ void* wxProcessVideoThread::Entry() {
     xml_path += ".xml";
     string xml_own_path = (*il).alphaid;
     xml_own_path += ".xml";
+    f.shotlog(xml_own_path);
     (*il).x->write_data(xml_own_path);
     (*il).x->apply_xsl(xml_path);
   }
