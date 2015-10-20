@@ -374,12 +374,12 @@ int film::process() {
     /*
      * Allocate current and previous video frames
      */
-    pFrame = avcodec_alloc_frame();
+    pFrame = av_frame_alloc();
     // RGB:
-    pFrameRGB = avcodec_alloc_frame();      // current frame
-    pFrameRGBprev = avcodec_alloc_frame();  // previous frame
+    pFrameRGB = av_frame_alloc();      // current frame
+    pFrameRGBprev = av_frame_alloc();  // previous frame
     // YUV:
-    pFrameYUV = avcodec_alloc_frame();  // current frame
+    pFrameYUV = av_frame_alloc();  // current frame
 
     /*
      * Allocate memory for the pixels of a picture and setup the AVPicture
@@ -589,7 +589,7 @@ void film::process_audio() {
   len = packet.size;
 
   while (len > 0) {
-    this->audio_buf = avcodec_alloc_frame();
+    this->audio_buf = av_frame_alloc();
     // (short *) av_fast_realloc (this->audio_buf, &samples_size, FFMAX
     // (packet.size, AVCODEC_MAX_AUDIO_FRAME_SIZE));
     data_size = samples_size;
