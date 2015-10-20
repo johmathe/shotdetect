@@ -386,10 +386,10 @@ int film::process() {
      * fields for it
      */
     // RGB:
-    avpicture_alloc((AVPicture *)pFrameRGB, PIX_FMT_RGB24, width, height);
-    avpicture_alloc((AVPicture *)pFrameRGBprev, PIX_FMT_RGB24, width, height);
+    avpicture_alloc((AVPicture *)pFrameRGB, AV_PIX_FMT_RGB24, width, height);
+    avpicture_alloc((AVPicture *)pFrameRGBprev, AV_PIX_FMT_RGB24, width, height);
     // YUV:
-    avpicture_alloc((AVPicture *)pFrameYUV, PIX_FMT_YUV444P, width, height);
+    avpicture_alloc((AVPicture *)pFrameYUV, AV_PIX_FMT_YUV444P, width, height);
 
     /*
      * Mise en place du premier plan
@@ -428,7 +428,7 @@ int film::process() {
         if (!img_ctx) {
           img_ctx =
               sws_getContext(width, height, pCodecCtx->pix_fmt, width, height,
-                             PIX_FMT_YUV444P, SWS_BICUBIC, NULL, NULL, NULL);
+                             AV_PIX_FMT_YUV444P, SWS_BICUBIC, NULL, NULL, NULL);
           if (!img_ctx) {
             fprintf(stderr,
                     "Cannot initialize the converted YUV image context!\n");
@@ -440,7 +440,7 @@ int film::process() {
         if (!img_convert_ctx) {
           img_convert_ctx =
               sws_getContext(width, height, pCodecCtx->pix_fmt, width, height,
-                             PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+                             AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
           if (!img_convert_ctx) {
             fprintf(stderr,
                     "Cannot initialize the converted RGB image context!\n");
@@ -492,7 +492,7 @@ int film::process() {
         }
         /* Copy current frame as "previous" for next round */
         av_picture_copy((AVPicture *)pFrameRGBprev, (AVPicture *)pFrameRGB,
-                        PIX_FMT_RGB24, width, height);
+                        AV_PIX_FMT_RGB24, width, height);
 
         if (display) do_stats(pCodecCtx->frame_number);
       }
