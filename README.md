@@ -42,4 +42,4 @@ See the generated file for more details
 -r : generates the real size images
 
 # Comments
-johmathe@nonutc.fr
+johan.mathe@gmail.com
