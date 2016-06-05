@@ -1,0 +1,6 @@
+[package]
+name = "shotdetect"
+version = "0.1.0"
+authors = ["anand <anand.jeyahar@gmail.com>"]
+
+[dependencies]
