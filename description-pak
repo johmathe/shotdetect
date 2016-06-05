@@ -1,0 +1,6 @@
+'Shotdetect' detects scene cuts within a movie.
+
+The result produced is a simple XML file containing informations about the analyzed video/audio material, such as:
+- Quantity of movement
+- RGB color values
+- HSV color values
