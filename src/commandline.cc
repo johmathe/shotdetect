@@ -162,23 +162,24 @@ int main(int argc, char **argv) {
         break;
 
       /* Set the input file */
-      case 'i':
-        f.set_ipath(optarg);
-        if (!f.get_ipath().empty()) {
-          ifile_set = true;
-        }
-        break;
+    case 'i':
+      f.set_ipath(optarg);
+      if (!f.get_ipath().empty()) {
+        ifile_set = true;
+      }
+      break;
 
       /* Set the output file */
-      case 'o':
-        f.set_opath(optarg);
-        if (!f.get_opath().empty()) {
-          ofile_set = true;
-        }
-        break;
+    case 'o':
+      f.set_opath(optarg);
+      if (!f.get_opath().empty()) {
+        ofile_set = true;
+      }
+      break;
 
-      default:
-        break;
+
+    default:
+      break;
     }
   }
 
@@ -204,9 +205,11 @@ int main(int argc, char **argv) {
   f.x = x;
 
   f.shotlog("Processing movie.");
-  f.process();
-  string xml_path = "result.xml";
-  f.x->write_data(xml_path);
+  f.process ();
+  string xml_path  = f.global_path;
+  xml_path += "result.xml";
+  f.shotlog(xml_path);
+  f.x->write_data (xml_path);
   /*string finished_path = f.global_path;
   finished_path += "/finished";
   FILE *fd_finished = fopen(finished_path.c_str(),"w");
