@@ -3,3 +3,4 @@ target/*
 ?uild*
 .*.swp
 cscope.out
+Cargo.lock
