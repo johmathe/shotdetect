@@ -6,12 +6,12 @@ case "$1" in
     gui)
         mkdir -p build
         cd build
-        cmake .. && make
+        cmake -D CMAKE_BUILD_TYPE=Release .. && make
     ;;
     cmd)
         mkdir -p build
         cd build
-        cmake -D USE_WXWIDGETS:BOOL=OFF .. && make
+        cmake -D CMAKE_BUILD_TYPE=Release -D USE_WXWIDGETS:BOOL=OFF .. && make
     ;;
     all)
         mkdir -p build
@@ -29,4 +29,4 @@ case "$1" in
         echo "SYNTAX: $0 (gui|cmd|all)"
         echo ""
         echo ""
-esac 
+esac

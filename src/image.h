@@ -34,8 +34,9 @@ extern "C" {
 #include <wx/wx.h>
 #endif
 
-#define BEGIN true
-#define END false
+#define BEGIN 0x00
+#define END 0x01
+#define MIDDLE 0x02
 using namespace std;
 
 class conf;
@@ -54,10 +55,10 @@ class image {
   string thumb;
   string img;
   int id;
-  bool type;  // BEGIN || END
+  short type;  // BEGIN || END || MIDDLE
   int SaveFrame(AVFrame *pFrame, int frame_number);
   int create_img_dir();
-  image(film *, int, int, int, bool, bool, bool);
+  image(film *, int, int, int, short, bool, bool);
 };
 
 #endif /* !__IMAGE_H__ */

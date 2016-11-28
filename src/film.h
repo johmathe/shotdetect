@@ -45,6 +45,7 @@ extern "C" {
 #define DEFAULT_BDD_PORT 5432
 #define DEFAULT_THUMB_HEIGHT 85
 #define DEFAULT_THRESHOLD 75
+#define DEFAULT_MAX_SHOT_MS_DURATION 30000
 
 #define RATIO 327
 #define MIN_INT -32768
@@ -63,6 +64,7 @@ class film {
   /* Variables d'état */
   bool first_img_set;
   bool last_img_set;
+  bool middle_img_set;
   bool audio_set;
   bool video_set;
 
@@ -80,11 +82,14 @@ class film {
   AVCodec *pCodecAudio;
   // Image information for the current and previous frame:
   AVFrame *pFrame;
+
+  // List of scene frames
+  list<AVFrame*> pFramesRGB;
+  bool flip;
+
   // - RGB:
   AVFrame *pFrameRGB;
   AVFrame *pFrameRGBprev;
-  // - YUV:
-  AVFrame *pFrameYUV;
 
   AVPacket packet;
 
@@ -112,6 +117,9 @@ class film {
   void do_stats(int frame);
   void get_yuv_colors(AVFrame &pFrame);
   void CompareFrame(AVFrame *pFrame, AVFrame *pFramePrev);
+  void save_shot_with_frames(AVFrame *pFrame, AVFrame* pFramePrev, bool last_shot);
+  void free_frame_list();
+  void pop_frame_list_front();
   graph *g;
 
   void update_metadata();
@@ -176,6 +184,8 @@ class film {
   string code_lang;
   /* Processing threshold */
   int threshold;
+  /* Maximum shot duration (in milliseconds) */
+  int max_shot_ms_duration;
   /* Embed timecode */
   bool show_timecode;
   /* Alphanumeric ID */
@@ -208,6 +218,7 @@ class film {
   /* Accessors */
   inline void set_first_img(bool val) { this->first_img_set = val; };
   inline void set_last_img(bool val) { this->last_img_set = val; };
+  inline void set_middle_img(bool val) { this->middle_img_set = val; };
   inline void set_audio(bool val) { this->audio_set = val; };
   inline void set_video(bool val) { this->video_set = val; };
   inline void set_thumb(bool val) { this->thumb_set = val; };
@@ -216,6 +227,9 @@ class film {
     this->input_path = input_file;
   };
   inline void set_threshold(int threshold) { this->threshold = threshold; };
+  inline void set_max_shot_ms_duration(int duration) {
+    this->max_shot_ms_duration = duration;
+  };
   inline void set_show_timecode(bool val) { this->show_timecode = val; };
   inline void set_ipath(string path) { this->input_path = path; };
   inline void set_opath(string path) { this->global_path = path; };
@@ -229,6 +243,7 @@ class film {
 
   inline bool get_first_img(void) { return this->first_img_set; };
   inline bool get_last_img(void) { return this->last_img_set; };
+  inline bool get_middle_img(void) { return this->middle_img_set; };
   inline bool get_audio(void) { return this->audio_set; };
   inline bool get_video(void) { return this->video_set; };
   inline bool get_thumb(void) { return this->thumb_set; };

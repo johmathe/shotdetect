@@ -110,7 +110,7 @@ int image::SaveFrame(AVFrame *pFrame, int frame_number) {
   }
 
   /* Pad numbers to constant string width: */
-  char s_id[5];
+  char s_id[6];
   char s_frame_number[9];
 
   sprintf(s_id, "%05d", id);
@@ -123,9 +123,12 @@ int image::SaveFrame(AVFrame *pFrame, int frame_number) {
     if (this->type == BEGIN)
       str << f->alphaid << "/thumbs/" << f->alphaid << "_" << s_id << "-"
           << s_frame_number << "_in.jpg";
-    else
+    else if (this->type == END)
       str << f->alphaid << "/thumbs/" << f->alphaid << "_" << s_id << "-"
           << s_frame_number << "_out.jpg";
+    else if (this->type == MIDDLE)
+      str << f->alphaid << "/thumbs/" << f->alphaid << "_" << s_id << "-"
+          << s_frame_number << "_middle.jpg";
 
     thumb = str.str();
     str.str("");
@@ -149,9 +152,13 @@ int image::SaveFrame(AVFrame *pFrame, int frame_number) {
     if (this->type == BEGIN)
       str << f->alphaid << "/shots/" << f->alphaid << "_" << s_id << "-"
           << s_frame_number << "_in.jpg";
-    else
+    else if (this->type == END)
       str << f->alphaid << "/shots/" << f->alphaid << "_" << s_id << "-"
           << s_frame_number << "_out.jpg";
+    else if (this->type == MIDDLE) {
+      str << f->alphaid << "/shots/" << f->alphaid << "_" << s_id << "-"
+          << s_frame_number << "_middle.jpg";
+    }
 
     img = str.str();
     str.str("");
@@ -173,7 +180,7 @@ int image::SaveFrame(AVFrame *pFrame, int frame_number) {
   return 0;
 }
 
-image::image(film *_f, int _width, int _height, int _id, bool _type,
+image::image(film *_f, int _width, int _height, int _id, short _type,
              bool _thumb_set, bool _shot_set)
     : shot_set(_shot_set),
       thumb_set(_thumb_set),
