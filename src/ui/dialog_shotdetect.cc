@@ -98,6 +98,8 @@ DialogShotDetect::DialogShotDetect(wxWindow *parent, int id,
   checkbox_1->SetValue(true);
   checkbox_2 = new wxCheckBox(this, -1, wxT("Last image"));
   checkbox_2->SetValue(true);
+  checkbox_3 = new wxCheckBox(this, -1, wxT("Middle image"));
+  checkbox_3->SetValue(true);
   hframe = new HelpFrame(this, -1, _T ("About Shotdetect"));
   progress_global->SetValue(0);
   progress_local->SetValue(0);
@@ -134,10 +136,10 @@ void DialogShotDetect::FinProcess(wxCommandEvent &event) {
 void DialogShotDetect::AjouterFichier(wxCommandEvent &event) {
   wxFileDialog dialog(
       this, _T ("Open file for an analyse"), wxEmptyString, wxEmptyString,
-#ifdef __WXMOTIF__ \
+#ifdef __WXMOTIF__
     _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #else
-                       _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
+    _T ("Media files (*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav)|*.avi;*.flv;*.mp4;*.mpg;*.mov;*.mp3;*.wav")
 #endif
       );
   dialog.SetDirectory(wxGetHomeDir());
@@ -349,6 +351,7 @@ void DialogShotDetect::do_layout() {
    */
   sizer_check->Add(checkbox_1, 1, wxADJUST_MINSIZE, 0);
   sizer_check->Add(checkbox_2, 1, wxADJUST_MINSIZE, 0);
+  sizer_check->Add(checkbox_3, 1, wxADJUST_MINSIZE, 0);
   sizer_horiz_3->Add(sizer_seuil, 1, wxADJUST_MINSIZE | wxALIGN_RIGHT, 0);
   sizer_horiz_3->Add(sizer_offset, 1, wxADJUST_MINSIZE, 0);
   sizer_horiz_3->Add(sizer_check, 0, wxADJUST_MINSIZE, 0);

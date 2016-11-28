@@ -29,4 +29,4 @@ case "$1" in
         echo "SYNTAX: $0 (gui|cmd|all)"
         echo ""
         echo ""
-esac 
+esac

@@ -115,7 +115,6 @@ void film::CompareFrame(AVFrame *pFrame, AVFrame *pFramePrev) {
   int x;
   int y;
   int diff;
-  int frame_number = pCodecCtx->frame_number;
   int c1, c2, c3;
   int c1tot, c2tot, c3tot;
   c1tot = 0;
@@ -171,28 +170,61 @@ void film::CompareFrame(AVFrame *pFrame, AVFrame *pFramePrev) {
   g->push_rgb(c1tot, c2tot, c3tot);
   g->push_rgb_to_hsv(c1tot, c2tot, c3tot);
 
-  /*
-   * Take care of storing frame position and images of detecte scene cut
-   */
   if ((diff > this->threshold) && (score > this->threshold)) {
+    save_shot_with_frames(pFrame, pFramePrev, false);
+  }
+
+  int frame_number = pCodecCtx->frame_number;
+  int current_shot_f_duration = frame_number - shots.back().fbegin;
+  int current_shot_ms_duration = int(current_shot_f_duration * 1000 / fps);
+  if (current_shot_ms_duration > this->max_shot_ms_duration) {
+    #ifdef DEBUG
+      cerr << "Maximum shot length reached. Saving..." << endl;
+    #endif
+    save_shot_with_frames(pFrame, pFramePrev, false);
+  }
+}
+
+
+/*
+* Pops pFramesRGB list front element
+*/
+void film::pop_frame_list_front(void) {
+  avpicture_free((AVPicture*) pFramesRGB.front());
+  av_free(pFramesRGB.front());
+  pFramesRGB.pop_front();
+}
+
+
+/*
+* Frees all resources stored in pFramesRGB list
+*/
+void film::free_frame_list(void) {
+  while (pFramesRGB.size() > 1) {
+    avpicture_free((AVPicture*) pFramesRGB.front());
+    av_free(pFramesRGB.front());
+    pFramesRGB.pop_front();
+  }
+}
+
+
+/*
+* Saves detected shot and writes selected frames as image files
+*/
+void film::save_shot_with_frames(AVFrame* pFrame, AVFrame* pFramePrev, bool last_shot) {
+  int frame_number = pCodecCtx->frame_number;
+  shots.back().fduration = frame_number - shots.back().fbegin;
+  shots.back().msduration = int(((shots.back().fduration) * 1000) / fps);
+
+  if (!last_shot) {
     shot s;
     s.fbegin = frame_number;
     s.msbegin = int((frame_number * 1000) / fps);
     s.myid = shots.back().myid + 1;
-
-#ifdef DEBUG
-    cerr << "Shot log :: " << s.msbegin << endl;
-#endif
-
-    /*
-     * Convert to ms
-     */
-    shots.back().fduration = frame_number - shots.back().fbegin;
-    shots.back().msduration = int(((shots.back().fduration) * 1000) / fps);
-
-/*
- * Create images if necessary
- */
+    shots.push_back(s);
+    #ifdef DEBUG
+      cerr << "Shot log :: " << s.msbegin << endl;
+    #endif
 #ifdef WXWIDGETS
     if (this->first_img_set ||
         (display && dialogParent->checkbox_1->GetValue()))
@@ -200,39 +232,42 @@ void film::CompareFrame(AVFrame *pFrame, AVFrame *pFramePrev) {
     if (this->first_img_set)
 #endif
     {
-      image *im_begin = new image(this, width, height, s.myid, BEGIN,
-                                  this->thumb_set, this->shot_set);
+      image *im_begin = new image(this, width, height, shots.back().myid,
+          BEGIN, this->thumb_set, this->shot_set);
       im_begin->SaveFrame(pFrame, frame_number);
       s.img_begin = im_begin;
     }
-
-#ifdef WXWIDGETS
-    if (this->last_img_set || (display && dialogParent->checkbox_2->GetValue()))
-#else
-    if (this->last_img_set)
-#endif
-    {
-      image *im_end = new image(this, width, height, s.myid - 1, END,
-                                this->thumb_set, this->shot_set);
-      im_end->SaveFrame(pFramePrev, frame_number);
-      shots.back().img_end = im_end;
-    }
-    shots.push_back(s);
-
-/*
- * updating display
- */
-#ifdef WXWIDGETS
-    wxString nbshots;
-    nbshots << shots.size();
-    if (display) {
-      wxMutexGuiEnter();
-      dialogParent->list_films->SetItem(0, 1, nbshots);
-      wxMutexGuiLeave();
-    }
-#endif
   }
+#ifdef WXWIDGETS
+  if (this->last_img_set || (display && dialogParent->checkbox_2->GetValue()))
+#else
+  if (this->last_img_set)
+#endif
+  {
+    int shot_id = last_shot ? shots.back().myid : shots.back().myid - 1;
+    image *im_end = new image(this, width, height, shot_id, END,
+        this->thumb_set, this->shot_set);
+    im_end->SaveFrame(pFramePrev, frame_number);
+    shots.back().img_end = im_end;
+  }
+#ifdef WXWIDGETS
+  if (this->middle_img_set ||
+      (display && dialogParent->checkbox_3->GetValue()))
+#else
+  if (this->middle_img_set)
+#endif
+  {
+    int shot_id = last_shot ? shots.back().myid : shots.back().myid - 1;
+    image *im_middle = new image(this, width, height, shot_id, MIDDLE,
+        this->thumb_set, this->shot_set);
+    im_middle->SaveFrame(pFramesRGB.front(), frame_number);
+    free_frame_list();
+    flip = true;
+    delete im_middle;
+  }
+  duration.mstotal = int(shots.back().msduration + shots.back().msbegin);
 }
+
 
 void film::update_metadata() {
   char buf[256];
@@ -241,10 +276,9 @@ void film::update_metadata() {
     this->height = int(pFormatCtx->streams[videoStream]->codec->height);
     this->width = int(pFormatCtx->streams[videoStream]->codec->width);
     this->fps = av_q2d(pFormatCtx->streams[videoStream]->r_frame_rate);
-    avcodec_string(buf, sizeof(buf), pFormatCtx->streams[videoStream]->codec,
-                   0);
+    avcodec_string(
+        buf, sizeof(buf), pFormatCtx->streams[videoStream]->codec, 0);
     this->codec.video = buf;
-
   } else {
     this->codec.video = "null";
     this->height = 0;
@@ -294,7 +328,6 @@ int film::process() {
   int frameFinished;
   shot s;
   static struct SwsContext *img_convert_ctx = NULL;
-  static struct SwsContext *img_ctx = NULL;
   int frame_number;
 
   create_main_dir();
@@ -374,12 +407,11 @@ int film::process() {
     /*
      * Allocate current and previous video frames
      */
-    pFrame = avcodec_alloc_frame();
+    pFrame = av_frame_alloc();
     // RGB:
-    pFrameRGB = avcodec_alloc_frame();      // current frame
-    pFrameRGBprev = avcodec_alloc_frame();  // previous frame
-    // YUV:
-    pFrameYUV = avcodec_alloc_frame();  // current frame
+    pFrameRGB = av_frame_alloc();      // current frame
+    pFrameRGBprev = av_frame_alloc();  // previous frame
+
 
     /*
      * Allocate memory for the pixels of a picture and setup the AVPicture
@@ -388,8 +420,6 @@ int film::process() {
     // RGB:
     avpicture_alloc((AVPicture *)pFrameRGB, PIX_FMT_RGB24, width, height);
     avpicture_alloc((AVPicture *)pFrameRGBprev, PIX_FMT_RGB24, width, height);
-    // YUV:
-    avpicture_alloc((AVPicture *)pFrameYUV, PIX_FMT_YUV444P, width, height);
 
     /*
      * Mise en place du premier plan
@@ -424,18 +454,6 @@ int film::process() {
       if (frameFinished) {
         frame_number = pCodecCtx->frame_number;  // Current frame number
 
-        // Convert the image into YUV444
-        if (!img_ctx) {
-          img_ctx =
-              sws_getContext(width, height, pCodecCtx->pix_fmt, width, height,
-                             PIX_FMT_YUV444P, SWS_BICUBIC, NULL, NULL, NULL);
-          if (!img_ctx) {
-            fprintf(stderr,
-                    "Cannot initialize the converted YUV image context!\n");
-            exit(1);
-          }
-        }
-
         // Convert the image into RGB24
         if (!img_convert_ctx) {
           img_convert_ctx =
@@ -461,14 +479,19 @@ int film::process() {
         sws_scale(img_convert_ctx, pFrame->data, pFrame->linesize, 0,
                   pCodecCtx->height, pFrameRGB->data, pFrameRGB->linesize);
 
-        sws_scale(img_ctx, pFrame->data, pFrame->linesize, 0, pCodecCtx->height,
-                  pFrameYUV->data, pFrameYUV->linesize);
-
-        /* Extract pixel color information  */
-        get_yuv_colors(*pFrameYUV);
+        /* Push new RBG frame into list front */
+        AVFrame* pTempFrame = av_frame_alloc();
+        avpicture_alloc((AVPicture*) pTempFrame, PIX_FMT_RGB24, width, height);
+        av_picture_copy((AVPicture*) pTempFrame, (AVPicture *)pFrameRGB,
+                        PIX_FMT_RGB24, width, height);
+        pFramesRGB.push_back(pTempFrame);
 
         /* If it's not the first image */
         if (frame_number != 1) {
+          flip = !flip;
+          if (flip) {
+            pop_frame_list_front();
+          }
           CompareFrame(pFrameRGB, pFrameRGBprev);
         } else {
           /*
@@ -507,22 +530,7 @@ int film::process() {
   }
 
   if (videoStream != -1) {
-    /* Mise en place de la dernière image */
-    shots.back().fduration = pFrame->coded_picture_number - shots.back().fbegin;
-    shots.back().msduration = int(((shots.back().fduration) * 1000) / fps);
-    duration.mstotal = int(shots.back().msduration + shots.back().msbegin);
-#ifdef WXWIDGETS
-    if (this->last_img_set || (display && dialogParent->checkbox_2->GetValue()))
-#else
-    if (this->last_img_set)
-#endif
-    {
-      image *end_i = new image(this, width, height, shots.back().myid, END,
-                               this->thumb_set, this->shot_set);
-      end_i->SaveFrame(pFrameRGB, frame_number);
-      shots.back().img_end = end_i;
-    }
-
+    save_shot_with_frames(pFrameRGB, pFrameRGBprev, true);
     /*
      * Graph 'quantity of movement'
      */
@@ -542,7 +550,6 @@ int film::process() {
     av_free(pFrame);
     av_free(pFrameRGB);
     av_free(pFrameRGBprev);
-    av_free(pFrameYUV);
     avcodec_close(pCodecCtx);
   }
 
@@ -589,15 +596,14 @@ void film::process_audio() {
   len = packet.size;
 
   while (len > 0) {
-    this->audio_buf = avcodec_alloc_frame();
+    this->audio_buf = av_frame_alloc();
     // (short *) av_fast_realloc (this->audio_buf, &samples_size, FFMAX
     // (packet.size, AVCODEC_MAX_AUDIO_FRAME_SIZE));
     data_size = samples_size;
     // DEPRECATED: len1 = avcodec_decode_audio (pCodecCtxAudio, audio_buf,
     // &data_size, ptr, len);
-    len1 =
-        avcodec_decode_audio4(pCodecCtxAudio, audio_buf, &data_size, &packet);
-
+    len1 = avcodec_decode_audio4(
+        pCodecCtxAudio, audio_buf, &data_size, &packet);
     if (len1 < 0) {
       // Error, breaking the frame
       len = 0;
@@ -671,6 +677,7 @@ film::film(DialogShotDetect *d) {
   ech = 0;
   nchannel = 1;
   audio_buf = NULL;
+  flip = true;
 }
 #endif
 
@@ -687,6 +694,7 @@ film::film() {
   ech = 0;
   nchannel = 1;
   audio_buf = NULL;
+  flip = true;
 
   this->first_img_set = false;
   this->last_img_set = false;

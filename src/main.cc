@@ -47,6 +47,7 @@ void show_help(char **argv) {
       "-h           : show this help\n"
       "-n           : commandline mode (disable GUI)\n"
       "-s threshold : threshold (Default=%d)\n"
+      "-d duration  : max shot duration in milliseconds (Default=%d)\n"
       "-i file      : input file path\n"
       "-o path      : output path\n"
       "-y year      : set the year\n"
@@ -56,10 +57,11 @@ void show_help(char **argv) {
       "-v           : generate xml of video infos\n"
       "-f           : generate first image for each shot\n"
       "-l           : generate last image for each shot\n"
+      "-q           : generate middle image for each shot\n"
       "-m           : generate the thumbnail image\n"
       "-r           : generate the images in native resolution\n"
       "-c           : print timecode on x-axis in graph\n",
-      g_APP_VERSION, argv[0], DEFAULT_THRESHOLD);
+      g_APP_VERSION, argv[0], DEFAULT_THRESHOLD, DEFAULT_MAX_SHOT_MS_DURATION);
 }
 
 int main(int argc, char **argv) {
@@ -74,11 +76,11 @@ int main(int argc, char **argv) {
   extern char *optarg;
   extern int optind, opterr, optopt;
 
-  // Initialize threshold to a sensible default value
   f.threshold = DEFAULT_THRESHOLD;
+  f.max_shot_ms_duration = DEFAULT_MAX_SHOT_MS_DURATION;
 
   for (;;) {
-    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:fTlwvmrc");
+    int c = getopt (argc, argv, "?hnt:y:i:o:a:x:s:d:fqTlwvmrc");
 
     if (c < 0) {
       break;
@@ -99,6 +101,11 @@ int main(int argc, char **argv) {
       /* Draw last image of scene cut? */
       case 'l':
         f.set_last_img(true);
+        break;
+
+      /* Draw middle image of scene cut? */
+      case 'q':
+        f.set_middle_img(true);
         break;
 
       /* Generate images with native resolution? */
@@ -126,19 +133,23 @@ int main(int argc, char **argv) {
         f.set_threshold(atoi(optarg));
         break;
 
+      /* Set maximum shot ms duration */
+      case 'd':
+        f.set_max_shot_ms_duration(atoi(optarg));
+
       /* Embed timecode in graph  */
       case 'c':
         f.set_show_timecode(true);
         break;
       /* Set the title */
-    case 't':
-      f.set_title(optarg);
-      break;
+      case 't':
+        f.set_title(optarg);
+        break;
 
       /* Embed timecode in graph  */
-    case 'T':
-      f.set_show_timecode(true);
-      break;
+      case 'T':
+        f.set_show_timecode(true);
+        break;
 
       /* Id for path creation */
       case 'a':

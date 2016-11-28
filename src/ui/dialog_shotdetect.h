@@ -97,6 +97,7 @@ class DialogShotDetect : public wxDialog {
   wxListCtrl *list_films;
   wxCheckBox *checkbox_1;
   wxCheckBox *checkbox_2;
+  wxCheckBox *checkbox_3;
   void AjouterFichier(wxCommandEvent &event);   // wxGlade: <event_handler>
   void EnleverFichier(wxCommandEvent &event);   // wxGlade: <event_handler>
   void ViderListe(wxCommandEvent &event);       // wxGlade: <event_handler>
