@@ -407,10 +407,10 @@ int film::process() {
     /*
      * Allocate current and previous video frames
      */
-    pFrame = av_frame_alloc();
+    pFrame = avcodec_alloc_frame();
     // RGB:
-    pFrameRGB = av_frame_alloc();      // current frame
-    pFrameRGBprev = av_frame_alloc();  // previous frame
+    pFrameRGB = avcodec_alloc_frame();      // current frame
+    pFrameRGBprev = avcodec_alloc_frame();  // previous frame
 
 
     /*
@@ -480,7 +480,7 @@ int film::process() {
                   pCodecCtx->height, pFrameRGB->data, pFrameRGB->linesize);
 
         /* Push new RBG frame into list front */
-        AVFrame* pTempFrame = av_frame_alloc();
+        AVFrame* pTempFrame = avcodec_alloc_frame();
         avpicture_alloc((AVPicture*) pTempFrame, PIX_FMT_RGB24, width, height);
         av_picture_copy((AVPicture*) pTempFrame, (AVPicture *)pFrameRGB,
                         PIX_FMT_RGB24, width, height);
@@ -596,7 +596,7 @@ void film::process_audio() {
   len = packet.size;
 
   while (len > 0) {
-    this->audio_buf = av_frame_alloc();
+    this->audio_buf = avcodec_alloc_frame();
     // (short *) av_fast_realloc (this->audio_buf, &samples_size, FFMAX
     // (packet.size, AVCODEC_MAX_AUDIO_FRAME_SIZE));
     data_size = samples_size;
