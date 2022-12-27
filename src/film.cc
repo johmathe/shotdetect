@@ -418,8 +418,8 @@ int film::process() {
      * fields for it
      */
     // RGB:
-    avpicture_alloc((AVPicture *)pFrameRGB, PIX_FMT_RGB24, width, height);
-    avpicture_alloc((AVPicture *)pFrameRGBprev, PIX_FMT_RGB24, width, height);
+    if (avpicture_alloc((AVPicture *)pFrameRGB, PIX_FMT_RGB24, width, height) < 0) return -1;
+    if (avpicture_alloc((AVPicture *)pFrameRGBprev, PIX_FMT_RGB24, width, height) < 0) return -1;
 
     /*
      * Mise en place du premier plan
