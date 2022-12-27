@@ -408,9 +408,12 @@ int film::process() {
      * Allocate current and previous video frames
      */
     pFrame = avcodec_alloc_frame();
+    if (pFrame == NULL) return -1;
     // RGB:
     pFrameRGB = avcodec_alloc_frame();      // current frame
+    if (pFrameRGB == NULL) return -1;
     pFrameRGBprev = avcodec_alloc_frame();  // previous frame
+    if (pFrameRGBprev == NULL) return -1;
 
 
     /*
