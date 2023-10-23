@@ -213,7 +213,10 @@ int main(int argc, char **argv) {
     f.x = x;
 
     f.shotlog("Processing movie.");
-    f.process();
+    if(f.process() < 0){
+        cerr << "Error in processing the film." << endl;
+        exit(EXIT_FAILURE);
+    }
 
     string xml_path = f.alphaid;
     xml_path += "_";
