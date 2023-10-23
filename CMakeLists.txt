@@ -203,6 +203,7 @@ ENDIF()
 # Taken from official documentation (http://www.cmake.org/cmake/help/cmake2.6docs.html#command:install)
 install( 
     TARGETS ${TARGETS_TO_INSTALL}
+    BUNDLE  DESTINATION .
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static
